@@ -1,127 +1,59 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+// import React, { useEffect } from 'react';
+// import { Provider } from 'react-redux';
+// // import { NavigationContainer } from '@react-navigation/native';
+// // import { createStackNavigator } from '@react-navigation/stack';
+// import SplashScreen from 'react-native-splash-screen';
+// import AuthFirebase from './src/components/firebase/AuthFirebase';
+// import store from './src/store/store';
+// import { Platform } from 'react-native';
 
+// // const Stack = createStackNavigator();
+
+// const App = () => {
+//   useEffect(() => {
+//     if(Platform.OS === 'android'){
+//     SplashScreen.hide();
+//     }
+//   }, []);
+
+//   return (
+//     <Provider store={store}>
+//       {/* <NavigationContainer>
+//         <Stack.Navigator initialRouteName="Auth">
+//           <Stack.Screen name="Auth" component={AuthFirebase}  />
+//         </Stack.Navigator>
+//       </NavigationContainer> */}
+//       <AuthFirebase />
+//     </Provider>
+//   );
+// };
+
+// export default App;
+
+
+// App.tsx
 import React, { useEffect } from 'react';
-import type { PropsWithChildren } from 'react';
-import {
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { Provider } from 'react-redux';
+import { Platform} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
+import store from './src/store/store';
+// import AppNavigator from './src/navigation/AppNavigator';
+import AuthFirebase from './src/components/firebase/AuthFirebase';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({ children, title }: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
+const App = () => {
   useEffect(() => {
-    if (Platform.OS === 'android'){
-      SplashScreen.hide();
-    }
+    setTimeout(() => {
+      if (Platform.OS === 'android') {
+        SplashScreen.hide();
+      }
+    }, 900);
   }, []);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-            Okay Got it!
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <Provider store={store}>
+    <AuthFirebase />
+    </Provider>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
