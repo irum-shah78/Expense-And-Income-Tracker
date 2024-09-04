@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,54 +10,54 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
-import CheckBox from '@react-native-community/checkbox';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
-const SignUpScreen = () => {
-  const [name, setName] = useState<string>('');
+const SignInScreen = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
-  const [isChecked, setChecked] = useState<boolean>(false);
   const navigation = useNavigation();
 
-  const userRegister = () => {
-    if (name.length === 0 || email.length === 0 || password.length === 0) {
+  useEffect(()=>{
+    GoogleSignin.configure();
+  },[]);
+
+  const gmailLogin = async () => {
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    // Get the users ID token
+    const { idToken } = await GoogleSignin.signIn();
+
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(googleCredential);
+  };
+
+  const userSignIn = () => {
+    if (email.length === 0 || password.length === 0) {
       ToastAndroid.show('Please fill all the fields.', ToastAndroid.CENTER);
       return;
     }
 
-    if (password.length < 6) {
-      ToastAndroid.show('Password must be at least 6 characters long.', ToastAndroid.CENTER);
-      return;
-    }
-
     auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        const user = userCredential.user;
-        user
-          .updateProfile({
-            displayName: name,
-          })
-          .then(() => {
-            ToastAndroid.show('User account created & signed in!', ToastAndroid.LONG);
-            navigation.navigate('SignIn');
-          })
-          .catch(error => {
-            console.error('Error updating user profile:', error);
-            ToastAndroid.show('Failed to save user name. Try again!', ToastAndroid.LONG);
-          });
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
+        navigation.navigate('Home');
       })
       .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          ToastAndroid.show('That email address is already in use!', ToastAndroid.LONG);
+        if (error.code === 'auth/user-not-found') {
+          ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
+        } else if (error.code === 'auth/wrong-password') {
+          ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
         } else if (error.code === 'auth/invalid-email') {
           ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
         } else {
           console.error(error);
-          ToastAndroid.show('Registration failed. Please try again.', ToastAndroid.LONG);
+          ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
         }
       });
   };
@@ -76,17 +76,10 @@ const SignUpScreen = () => {
                 style={styles.backIcon}
               />
             </TouchableOpacity>
-            <Text style={styles.headerText}>Sign Up</Text>
+            <Text style={styles.headerText}>Login</Text>
           </View>
 
           <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Name"
-              placeholderTextColor={'#91919F'}
-              value={name}
-              onChangeText={(user) => setName(user)}
-            />
             <TextInput
               style={styles.input}
               placeholder="Email"
@@ -120,21 +113,11 @@ const SignUpScreen = () => {
                 />
               </TouchableOpacity>
             </View>
-            <View style={styles.checkboxContainer}>
-              <CheckBox
-                value={isChecked}
-                onValueChange={setChecked}
-                style={styles.checkbox}
-                tintColors={{ true: '#7F3DFF', false: '#7F3DFF' }}
-              />
-              <Text style={styles.termsText}>
-                By signing up, you agree to the{' '}
-                <Text style={styles.link}>Terms of Service and Privacy Policy</Text>
-              </Text>
-            </View>
-
-            <TouchableOpacity style={styles.signUpButton} onPress={userRegister}>
-              <Text style={styles.signUpButtonText}>Sign Up</Text>
+            <TouchableOpacity style={styles.signInButton} onPress={userSignIn}>
+              <Text style={styles.signInButtonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
             <Text style={styles.orText}>or</Text>
             <TouchableOpacity style={styles.googleButton}>
@@ -142,11 +125,13 @@ const SignUpScreen = () => {
                 source={require('../../../src/assets/icons/flat-color-icons_google.png')}
                 style={styles.googleIcon}
               />
-              <Text style={styles.googleButtonText}> Sign Up with Google</Text>
+              <Text style={styles.googleButtonText} onPress={()=> gmailLogin()}> Sign In with Google</Text>
             </TouchableOpacity>
-
-            <Text style={styles.loginRedirectText}>
-              Already have an account? <Text style={styles.loginLink} onPress={() => navigation.navigate('SignIn')}>Login</Text>
+            <Text style={styles.signUpRedirectText}>
+              Don't have an account yet?{' '}
+              <Text style={styles.signUpLink} onPress={() => navigation.navigate('SignUp')}>
+                Sign Up
+              </Text>
             </Text>
           </View>
         </View>
@@ -155,7 +140,7 @@ const SignUpScreen = () => {
   );
 };
 
-export default SignUpScreen;
+export default SignInScreen;
 
 const styles = StyleSheet.create({
   safeAreaContainer: {
@@ -181,7 +166,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     marginLeft: 10,
-    gap: 80,
+    gap: 90,
   },
   backButton: {
     marginRight: 10,
@@ -212,25 +197,19 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: 'absolute',
     right: 15,
-    top: 17,
+    top: 16,
   },
   iconImage: {
     objectFit: 'contain',
     height: 24,
     width: 24,
   },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  checkbox: {
-    marginRight: 10,
-  },
-  termsText: {
-    flex: 1,
-    color: 'black',
-    fontSize: 16,
+  forgotPasswordText: {
+    textAlign: 'right',
+    color: '#7F3DFF',
+    textDecorationLine: 'underline',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   orText: {
     fontWeight: '900',
@@ -238,18 +217,16 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: 'gray',
   },
-  link: {
-    color: '#7F3DFF',
-  },
-  signUpButton: {
+  signInButton: {
     backgroundColor: '#7F3DFF',
     paddingVertical: 17,
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 10,
     height: 56,
   },
-  signUpButtonText: {
+  signInButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
@@ -274,12 +251,12 @@ const styles = StyleSheet.create({
     color: '#212325',
     fontSize: 18,
   },
-  loginRedirectText: {
+  signUpRedirectText: {
     textAlign: 'center',
     color: 'gray',
     fontSize: 16,
   },
-  loginLink: {
+  signUpLink: {
     color: '#7F3DFF',
     textDecorationLine: 'underline',
   },

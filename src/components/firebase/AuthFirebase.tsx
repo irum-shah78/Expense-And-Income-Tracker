@@ -1,12 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import SignUp from '../../screens/signUp/SignUp';
+import SignInScreen from '../../screens/signIn/SignIn';
+// import { useNavigation } from '@react-navigation/native';
 
 const AuthFirebase = () => {
   const [initializing, setInitializing] = useState<boolean>(true);
-  const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
-
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  // const navigation = useNavigation();
   useEffect(() => {
     auth().onAuthStateChanged(activeUser => {
       setUser(activeUser);
@@ -17,74 +19,24 @@ const AuthFirebase = () => {
   }, [initializing]);
 
   if (initializing) {
-    return null;
-  }
-
-  if (!user) {
     return (
-      // <View>
-      <SignUp />
-      // </View>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#7F3DFF" />
+      </View>
     );
   }
-
-  return (
-    <View>
-      <Text>Welcome {user.email}</Text>
-    </View>
-  );
+  if (!user) {
+    return <SignUp />;
+  }
+  return <SignInScreen />;
 };
 
 export default AuthFirebase;
 
-const styles = StyleSheet.create({});
-
-
-// // src/components/firebase/AuthFirebase.tsx
-// import React, { useState, useEffect } from 'react';
-// import { StyleSheet, Text, View } from 'react-native';
-// import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-
-// const AuthFirebase = () => {
-//   const [initializing, setInitializing] = useState<boolean>(true);
-//   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-
-//   useEffect(() => {
-//     const subscriber = auth().onAuthStateChanged((activeUser) => {
-//       setUser(activeUser);
-//       if (initializing) {
-//         setInitializing(false);
-//       }
-//     });
-
-//     return subscriber; // Unsubscribe on unmount
-//   }, [initializing]);
-
-//   if (initializing) {
-//     return null; // Or a loading indicator
-//   }
-
-//   if (!user) {
-//     return (
-//       <View style={styles.container}>
-//         <Text>Login</Text>
-//       </View>
-//     );
-//   }
-
-//   return (
-//     <View style={styles.container}>
-//       <Text>Welcome {user.email}</Text>
-//     </View>
-//   );
-// };
-
-// export default AuthFirebase;
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-// });
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
