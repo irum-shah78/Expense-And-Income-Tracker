@@ -5,22 +5,45 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Image,
   SafeAreaView,
   ToastAndroid,
+  ActivityIndicator,
+  Image,
 } from 'react-native';
+import { useAppDispatch, useAppSelector } from '../../../src/hooks/index';
+import { resetPassword, checkEmailExists } from '../../store/slices/authSlice';
 import { useNavigation } from '@react-navigation/native';
 
 const ForgotPasswordScreen = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const dispatch = useAppDispatch();
+  const { loading, error, emailExists } = useAppSelector((state) => state.auth);
   const navigation = useNavigation();
 
-  const handleSendEmail = () => {
+  const handleSendEmail = async () => {
     if (!email) {
-      ToastAndroid.show('Please enter your email.', ToastAndroid.CENTER);
+      ToastAndroid.show('Please enter your email.', ToastAndroid.SHORT);
       return;
     }
-    ToastAndroid.show('Password reset email sent!', ToastAndroid.LONG);
+
+    try {
+      await dispatch(checkEmailExists(email)).unwrap();
+      if (!emailExists) {
+        ToastAndroid.show('Email not registered.', ToastAndroid.SHORT);
+        return;
+      }
+      dispatch(resetPassword(email))
+        .unwrap()
+        .then((message) => {
+          ToastAndroid.show(message, ToastAndroid.LONG);
+        })
+        .catch((errorMessage) => {
+          ToastAndroid.show(errorMessage, ToastAndroid.LONG);
+        });
+
+    } catch (err) {
+      ToastAndroid.show('Error checking email existence.', ToastAndroid.LONG);
+    }
   };
 
   return (
@@ -45,14 +68,22 @@ const ForgotPasswordScreen = () => {
           style={styles.input}
           placeholder="Email"
           value={email}
-          onChangeText={(text) => setEmail(text)}
+          onChangeText={setEmail}
           keyboardType="email-address"
           placeholderTextColor="#91919F"
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleSendEmail}>
-          <Text style={styles.buttonText}>Send Email</Text>
-        </TouchableOpacity>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#7F3DFF" />
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.button} onPress={handleSendEmail}>
+            <Text style={styles.buttonText}>Send Email</Text>
+          </TouchableOpacity>
+        )}
+
+        {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
     </SafeAreaView>
   );
@@ -128,5 +159,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+    loadingContainer: {
+    marginVertical: 20,
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 20,
   },
 });

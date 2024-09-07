@@ -20,20 +20,27 @@ const SignInScreen = () => {
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const navigation = useNavigation();
 
-  useEffect(()=>{
-    GoogleSignin.configure();
-  },[]);
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '153932310972-7o5t86d76tli42v6u13bdj1t7u1q5mh1.apps.googleusercontent.com',
+    });
+  }, []);
 
-  const gmailLogin = async () => {
-    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-    // Get the users ID token
-    const { idToken } = await GoogleSignin.signIn();
-
-    // Create a Google credential with the token
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-    // Sign-in the user with the credential
-    return auth().signInWithCredential(googleCredential);
+  const onGoogleButtonPress = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.idToken;
+      if (!idToken) {
+        throw new Error('Google Sign-In failed. No ID token returned.');
+      }
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      await auth().signInWithCredential(googleCredential);
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Google Sign-In Error:', error);
+      ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
+    }
   };
 
   const userSignIn = () => {
@@ -61,7 +68,6 @@ const SignInScreen = () => {
         }
       });
   };
-
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -125,7 +131,7 @@ const SignInScreen = () => {
                 source={require('../../../src/assets/icons/flat-color-icons_google.png')}
                 style={styles.googleIcon}
               />
-              <Text style={styles.googleButtonText} onPress={()=> gmailLogin()}> Sign In with Google</Text>
+              <Text style={styles.googleButtonText} onPress={onGoogleButtonPress}> Sign In with Google</Text>
             </TouchableOpacity>
             <Text style={styles.signUpRedirectText}>
               Don't have an account yet?{' '}
