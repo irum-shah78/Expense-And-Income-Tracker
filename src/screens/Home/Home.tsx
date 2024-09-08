@@ -6,30 +6,17 @@ const HomePage = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      {/* <View style={styles.header}>
-        <View style={styles.profileSection}>
-          <Image source={require('../../assets/icons/eye.png')} style={styles.profileImage} />
-          <Text style={styles.monthText}>October ▼</Text>
-        </View>
-        <TouchableOpacity style={styles.notificationIcon}>
-          <Image source={require('../../assets/icons/notifiaction.png')} />
-        </TouchableOpacity>
-      </View> */}
-
       <View style={styles.header}>
-      <View style={styles.overlayTop} />
-      <View style={styles.overlayBottom} />
+        <View style={styles.overlayTop} />
+        <View style={styles.overlayBottom} />
         <View style={styles.profileSection}>
-          <Image source={require('../../assets/icons/eye.png')} style={styles.profileImage} />
+          <Image source={require('../../assets/images/profile.png')} style={styles.profileImage} />
           <Text style={styles.monthText}>October ▼</Text>
-        </View>
-        <TouchableOpacity style={styles.notificationIcon}>
+          <TouchableOpacity style={styles.notificationIcon}>
           <Image source={require('../../assets/icons/notifiaction.png')} />
         </TouchableOpacity>
-      </View>
-
-      {/* Account Balance */}
-      <View style={styles.accountBalanceSection}>
+        </View>
+      {/* <View style={styles.accountBalanceSection}>
         <Text style={styles.accountBalanceText}>Account Balance</Text>
         <Text style={styles.balanceAmount}>$9400</Text>
         <View style={styles.overviewSection}>
@@ -44,6 +31,7 @@ const HomePage = () => {
             <Text style={styles.amountText}>$1200</Text>
           </View>
         </View>
+      </View> */}
       </View>
 
       {/* Spend Frequency Graph */}
@@ -81,32 +69,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 5,
+    borderBottomEndRadius: 30,
   },
   overlayTop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#FFF6E6',
     opacity: 0.95,
+    borderBottomEndRadius: 30,
+    borderBottomLeftRadius: 30,
   },
   overlayBottom: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(248, 237, 216, 0)',
     top: '50%',
+    borderBottomEndRadius: 30,
   },
   content: {
-    position: 'absolute',
+    // position: 'absolute',
   },
   gradient: {
     flex: 1,
   },
   profileSection: {
     flexDirection: 'row',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
   profileImage: {
@@ -124,7 +117,7 @@ const styles = StyleSheet.create({
     height: 25,
   },
   accountBalanceSection: {
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
     marginVertical: 10,
