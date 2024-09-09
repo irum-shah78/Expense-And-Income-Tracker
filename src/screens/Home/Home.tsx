@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
+import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView} from 'react-native';
 
 const HomePage = () => {
   return (
@@ -11,33 +10,37 @@ const HomePage = () => {
         <View style={styles.overlayBottom} />
         <View style={styles.profileSection}>
           <Image source={require('../../assets/images/profile.png')} style={styles.profileImage} />
-          <Text style={styles.monthText}>October ▼</Text>
+          <View>
+          <TouchableOpacity style={styles.droppDown}>
+          <Image source={require('../../assets/icons/arrow-down-month.png')} />
+            <Text style={styles.monthText}>October</Text>
+          </TouchableOpacity>
+          </View>
           <TouchableOpacity style={styles.notificationIcon}>
           <Image source={require('../../assets/icons/notifiaction.png')} />
         </TouchableOpacity>
         </View>
-      {/* <View style={styles.accountBalanceSection}>
+      <View style={styles.accountBalanceSection}>
         <Text style={styles.accountBalanceText}>Account Balance</Text>
         <Text style={styles.balanceAmount}>$9400</Text>
         <View style={styles.overviewSection}>
-          <View style={styles.overviewBox}>
-            <Image source={require('../../assets/icons/eye.png')} style={styles.overviewIcon} />
+          <View style={styles.overviewBox1}>
+            <Image source={require('../../assets/icons/Income.png')} style={styles.overviewIcon} />
             <Text style={styles.incomeText}>Income</Text>
             <Text style={styles.amountText}>$5000</Text>
           </View>
-          <View style={styles.overviewBox}>
-            <Image source={require('../../assets/icons/eye.png')} style={styles.overviewIcon} />
+          <View style={styles.overviewBox2}>
+            <Image source={require('../../assets/icons/Expense.png')} style={styles.overviewIcon} />
             <Text style={styles.expenseText}>Expenses</Text>
             <Text style={styles.amountText}>$1200</Text>
           </View>
         </View>
-      </View> */}
+      </View>
       </View>
 
-      {/* Spend Frequency Graph */}
       <View style={styles.graphSection}>
         <Text style={styles.spendFrequencyText}>Spend Frequency</Text>
-        <Image source={require('../../assets/icons/eye.png')} style={styles.graphImage} />
+        <Image source={require('../../assets/images/Group.png')} style={styles.graphImage} />
       </View>
 
       {/* Tabs */}
@@ -68,22 +71,17 @@ const HomePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
     paddingHorizontal: 5,
   },
   header: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 5,
-    borderBottomEndRadius: 30,
+    height: 312,
   },
   overlayTop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#FFF6E6',
-    opacity: 0.95,
-    borderBottomEndRadius: 30,
-    borderBottomLeftRadius: 30,
+    opacity: 1,
+    borderBottomEndRadius: 32,
+    borderBottomLeftRadius: 32,
   },
   overlayBottom: {
     ...StyleSheet.absoluteFillObject,
@@ -92,15 +90,19 @@ const styles = StyleSheet.create({
     borderBottomEndRadius: 30,
   },
   content: {
-    // position: 'absolute',
+    position: 'absolute',
   },
   gradient: {
     flex: 1,
   },
   profileSection: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingBottom: 8,
+    paddingLeft: 16,
   },
   profileImage: {
     width: 50,
@@ -108,36 +110,66 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   monthText: {
-    marginLeft: 10,
     fontSize: 18,
     fontWeight: '600',
+    color: 'black',
   },
   notificationIcon: {
     width: 25,
     height: 25,
   },
+  droppDown: {
+    borderRadius: 40,
+    borderColor: '#F1F1FA',
+    height: 60,
+    width: 120,
+    flexDirection: 'row',
+    borderWidth: 1,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingBottom: 8,
+    paddingLeft: 16,
+    gap: 6,
+  },
   accountBalanceSection: {
-    // backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    marginVertical: 10,
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingBottom: 8,
+    paddingLeft: 16,
   },
   accountBalanceText: {
-    fontSize: 16,
-    color: '#888',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#91919F',
+    textAlign: 'center',
   },
   balanceAmount: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontSize: 40,
+    fontWeight: '600',
     marginVertical: 10,
+    color: '#161719',
+    textAlign: 'center',
   },
   overviewSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  overviewBox: {
+  overviewBox1: {
     width: '48%',
-    backgroundColor: '#f1f1f1',
+    backgroundColor: '#00A86B',
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingVertical: 15,
+    justifyContent: 'center',
+  },
+  overviewBox2: {
+    width: '48%',
+    backgroundColor: '#FD3C4A',
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
@@ -147,16 +179,17 @@ const styles = StyleSheet.create({
     height: 40,
   },
   incomeText: {
-    color: '#2ecc71',
+    color: '#FCFCFC',
     marginVertical: 5,
   },
   expenseText: {
-    color: '#e74c3c',
+    color: '#FCFCFC',
     marginVertical: 5,
   },
   amountText: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#FCFCFC',
   },
   graphSection: {
     marginVertical: 20,
