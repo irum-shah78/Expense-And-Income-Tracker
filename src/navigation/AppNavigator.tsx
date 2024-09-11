@@ -7,6 +7,7 @@ import SignUpScreen from '../screens/signUp/SignUp';
 import ForgotPasswordScreen from '../screens/forgetPassword/ForgetPassword';
 import HomePage from '../screens/Home/Home';
 import AddExpense from '../screens/addExpense/AddExpense';
+import AddIncome from '../screens/addIncome/AddIncome';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ const AppNavigator = () => {
         <Stack.Screen name="ForgetPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }} />
         <Stack.Screen name="AddExpense" component={AddExpense} options={{ headerShown: false }} />
+        <Stack.Screen name="AddIncome" component={AddIncome} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

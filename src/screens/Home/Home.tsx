@@ -67,7 +67,7 @@ const HomePage = () => {
       {showAddOptions && (
         <View style={styles.overlay}>
           <View style={styles.addOptionsContainer}>
-            <TouchableOpacity style={styles.incomeButton} >
+            <TouchableOpacity style={styles.incomeButton} onPress={() => navigation.navigate('AddIncome')} >
               <Image source={require('../../assets/icons/Income-white.png')} />
             </TouchableOpacity>
 
