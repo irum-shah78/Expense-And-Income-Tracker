@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 
 const HomePage = () => {
   const [selectedTab, setSelectedTab] = useState('Today');
+  const [activeTab, setActiveTab] = useState('Home');
+  const [showAddOptions, setShowAddOptions] = useState(false);
+  const navigation = useNavigation();
   const tabs = ['Today', 'Week', 'Month', 'Year'];
 
   const data = [
@@ -50,36 +54,29 @@ const HomePage = () => {
     },
   ];
 
-  const [activeTab, setActiveTab] = useState('Home');
-  const [showAddOptions, setShowAddOptions] = useState(false); // State for add options visibility
-
-  // Function to handle tab press
   const handleTabPress = (tab: string) => {
     if (tab === 'Add') {
-      setShowAddOptions(!showAddOptions); // Toggle visibility for add options
+      setShowAddOptions(!showAddOptions);
     } else {
       setActiveTab(tab);
-      setShowAddOptions(false); // Hide add options when any other tab is clicked
+      setShowAddOptions(false);
     }
   };
   return (
     <SafeAreaView style={styles.container}>
       {showAddOptions && (
-          <View style={styles.overlay}>
-            {/* Income and Expense Buttons Container */}
-            <View style={styles.addOptionsContainer}>
-              {/* Income Button */}
-              <TouchableOpacity style={styles.incomeButton}>
-                <Image source={require('../../assets/icons/Income-white.png')} style={styles.optionIcon} />
-              </TouchableOpacity>
+        <View style={styles.overlay}>
+          <View style={styles.addOptionsContainer}>
+            <TouchableOpacity style={styles.incomeButton} >
+              <Image source={require('../../assets/icons/Income-white.png')} />
+            </TouchableOpacity>
 
-              {/* Expense Button */}
-              <TouchableOpacity style={styles.expenseButton}>
-                <Image source={require('../../assets/icons/Expense-white.png')} style={styles.optionIcon} />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.expenseButton} onPress={() => navigation.navigate('AddExpense')}>
+              <Image source={require('../../assets/icons/Expense-white.png')} />
+            </TouchableOpacity>
           </View>
-        )}
+        </View>
+      )}
 
       {/* Header */}
       <View style={styles.header}>
@@ -195,7 +192,7 @@ const HomePage = () => {
       </View>
 
       {/* Bottom Navigation */}
-      {/* <View style={styles.navBarContainer}>
+      <View style={styles.navBarContainer}>
         <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Home')}>
           <Image
             source={require('../../assets/icons/home-on.png')}
@@ -213,8 +210,15 @@ const HomePage = () => {
         </TouchableOpacity>
 
         <View style={styles.addButtonWrapper}>
-          <TouchableOpacity style={styles.addButton}>
-            <Image source={require('../../assets/icons/add.png')} style={styles.addIcon} />
+          <TouchableOpacity style={styles.addButton} onPress={() => handleTabPress('Add')}>
+            <Image
+              source={
+                showAddOptions
+                  ? require('../../assets/icons/close.png')
+                  : require('../../assets/icons/add.png')
+              }
+              style={styles.addIcon}
+            />
           </TouchableOpacity>
         </View>
 
@@ -233,54 +237,7 @@ const HomePage = () => {
           />
           <Text style={activeTab === 'Profile' ? styles.navTextActive : styles.navText}>Profile</Text>
         </TouchableOpacity>
-      </View> */}
-
-        {/* Bottom Navigation Bar */}
-        <View style={styles.navBarContainer}>
-          {/* Home Button */}
-          <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Home')}>
-            <Image
-              source={require('../../assets/icons/home-on.png')}
-              style={[styles.navIcon, activeTab === 'Home' && styles.navIconActive]}
-            />
-            <Text style={activeTab === 'Home' ? styles.navTextActive : styles.navText}>Home</Text>
-          </TouchableOpacity>
-
-          {/* Transaction Button */}
-          <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Transaction')}>
-            <Image
-              source={require('../../assets/icons/Transaction.png')}
-              style={[styles.navIcon, activeTab === 'Transaction' && styles.navIconActive]}
-            />
-            <Text style={activeTab === 'Transaction' ? styles.navTextActive : styles.navText}>Transaction</Text>
-          </TouchableOpacity>
-
-          {/* Add Button */}
-          <View style={styles.addButtonWrapper}>
-            <TouchableOpacity style={styles.addButton} onPress={() => handleTabPress('Add')}>
-              <Image source={require('../../assets/icons/add.png')} style={styles.addIcon} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Budget Button */}
-          <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Budget')}>
-            <Image
-              source={require('../../assets/icons/Pie-chart.png')}
-              style={[styles.navIcon, activeTab === 'Budget' && styles.navIconActive]}
-            />
-            <Text style={activeTab === 'Budget' ? styles.navTextActive : styles.navText}>Budget</Text>
-          </TouchableOpacity>
-
-          {/* Profile Button */}
-          <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Profile')}>
-            <Image
-              source={require('../../assets/icons/user.png')}
-              style={[styles.navIcon, activeTab === 'Profile' && styles.navIconActive]}
-            />
-            <Text style={activeTab === 'Profile' ? styles.navTextActive : styles.navText}>Profile</Text>
-          </TouchableOpacity>
-        </View>
-      {/* </View> */}
+      </View>
     </SafeAreaView>
   );
 };
@@ -548,102 +505,45 @@ const styles = StyleSheet.create({
     color: '#91919F',
     paddingTop: 6,
   },
-
-  // navBarContainer: {
-  //   flexDirection: 'row',
-  //   justifyContent: 'space-between',
-  //   alignItems: 'center',
-  //   backgroundColor: '#fff',
-  //   height: 80,
-  //   borderTopLeftRadius: 20,
-  //   borderTopRightRadius: 20,
-  //   shadowColor: '#000',
-  //   shadowOffset: { width: 0, height: -2 },
-  //   shadowOpacity: 0.1,
-  //   shadowRadius: 10,
-  //   elevation: 10,
-  //   paddingHorizontal: 20,
-  // },
-  // navItem: {
-  //   alignItems: 'center',
-  // },
-  // navIcon: {
-  //   tintColor: '#B0B0B0',
-  // },
-  // navIconActive: {
-  //   tintColor: '#7F3DFF',
-  // },
-  // navText: {
-  //   color: '#B0B0B0',
-  //   fontSize: 12,
-  //   marginTop: 5,
-  // },
-  // navTextActive: {
-  //   color: '#7F3DFF',
-  //   fontSize: 12,
-  //   marginTop: 5,
-  // },
-  // addButtonWrapper: {
-  //   position: 'relative',
-  //   top: -20,
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   width: 70,
-  //   height: 70,
-  //   borderRadius: 35,
-  //   zIndex: 10,
-  // },
-  // addButton: {
-  //   backgroundColor: '#7F3DFF',
-  //   width: 60,
-  //   height: 60,
-  //   borderRadius: 30,
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  // },
-  // addIcon: {
-  //   tintColor: '#fff',
-  // },
-
-
+  addOptionsContainer: {
+    position: 'absolute',
+    bottom: '2%',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   contentContainer: {
     flex: 1,
     backgroundColor: '#fff',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#F6F4FFAA', // Light purple with transparency
-    justifyContent: 'center',
+    backgroundColor: 'rgba(237, 227, 255, 0.4)',
     alignItems: 'center',
     bottom: 80,
-    zIndex: 1, // Ensure overlay is on top of other elements
-  },
-  addOptionsContainer: {
-    position: 'absolute',
-    bottom: 120, // Position options above the "Add" button
-    alignItems: 'center',
+    zIndex: 1,
   },
   incomeButton: {
-    backgroundColor: '#00A86B', // Green color for income button
+    backgroundColor: '#00A86B',
     borderRadius: 50,
     width: 60,
     height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginHorizontal: 20,
   },
   expenseButton: {
-    backgroundColor: '#D9534F', // Red color for expense button
+    backgroundColor: '#FD3C4A',
     borderRadius: 50,
     width: 60,
     height: 60,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 15,
   },
-  optionIcon: {
-    tintColor: '#fff',
-    width: 30,
-    height: 30,
+  buttonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   navBarContainer: {
     flexDirection: 'row',
@@ -698,6 +598,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addIcon: {
+    tintColor: '#fff',
+  },
+  optionIcon: {
     tintColor: '#fff',
   },
 });

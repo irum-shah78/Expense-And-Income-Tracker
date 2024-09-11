@@ -178,8 +178,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   backIcon: {
-    width: 24,
-    height: 24,
     objectFit: 'contain',
   },
   headerText: {
