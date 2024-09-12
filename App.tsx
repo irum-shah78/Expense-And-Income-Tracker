@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 import store from './src/store/store';
 import AppNavigator from './src/navigation/AppNavigator';
+import TabNavigator from './src/navigation/TabNavigator';
 
 const App = () => {
   useEffect(() => {
@@ -17,6 +18,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <AppNavigator />
+      <TabNavigator />
     </Provider>
   );
 };

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+// import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 
-const HomePage = () => {
+const HomePage = (props:any) => {
   const [selectedTab, setSelectedTab] = useState('Today');
   const [activeTab, setActiveTab] = useState('Home');
   const [showAddOptions, setShowAddOptions] = useState(false);
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
   const tabs = ['Today', 'Week', 'Month', 'Year'];
 
   const data = [
@@ -67,11 +67,11 @@ const HomePage = () => {
       {showAddOptions && (
         <View style={styles.overlay}>
           <View style={styles.addOptionsContainer}>
-            <TouchableOpacity style={styles.incomeButton} onPress={() => navigation.navigate('AddIncome')} >
+            <TouchableOpacity style={styles.incomeButton} onPress={() => props.navigation.navigate('AddIncome')} >
               <Image source={require('../../assets/icons/Income-white.png')} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.expenseButton} onPress={() => navigation.navigate('AddExpense')}>
+            <TouchableOpacity style={styles.expenseButton} onPress={() => props.navigation.navigate('AddExpense')}>
               <Image source={require('../../assets/icons/Expense-white.png')} />
             </TouchableOpacity>
           </View>

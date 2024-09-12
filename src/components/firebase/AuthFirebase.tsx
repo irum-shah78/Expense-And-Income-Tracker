@@ -43,31 +43,82 @@
 //   },
 // });
 
+// import React, { useEffect } from 'react';
+// import { StyleSheet, View, ActivityIndicator } from 'react-native';
+// import { useAppDispatch, useAppSelector } from '../../hooks';
+// import { login, logout } from '../../store/slices/authSlice';
+// import auth from '@react-native-firebase/auth';
+// import { useNavigation } from '@react-navigation/native';
+
+// const AuthFirebase: React.FC = () => {
+//   const dispatch = useAppDispatch();
+//   const navigation = useNavigation();
+//   const { loading } = useAppSelector((state) => state.auth);
+
+//   useEffect(() => {
+//     const unsubscribe = auth().onAuthStateChanged((activeUser) => {
+//       if (activeUser) {
+//         dispatch(login(activeUser));
+//         navigation.navigate('Home');
+//       } else {
+//         dispatch(logout());
+//         navigation.navigate('SignIn');
+//       }
+//     });
+
+//     return unsubscribe;
+//   }, [dispatch, navigation]);
+
+//   if (loading) {
+//     return (
+//       <View style={styles.loadingContainer}>
+//         <ActivityIndicator size="large" color="#7F3DFF" />
+//       </View>
+//     );
+//   }
+
+//   return null;
+// };
+
+// export default AuthFirebase;
+
+// const styles = StyleSheet.create({
+//   loadingContainer: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+// });
+
+
 import React, { useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { login, logout } from '../../store/slices/authSlice';
 import auth from '@react-native-firebase/auth';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 
-const AuthFirebase: React.FC = () => {
+type AuthFirebaseProps = {
+  navigation: NavigationProp<any>; // Replace 'any' with your stack's type if you have one
+};
+
+const AuthFirebase: React.FC<AuthFirebaseProps> = (props) => {
   const dispatch = useAppDispatch();
-  const navigation = useNavigation();
   const { loading } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((activeUser) => {
       if (activeUser) {
         dispatch(login(activeUser));
-        navigation.navigate('Home');
+        props.navigation.navigate('Home');
       } else {
         dispatch(logout());
-        navigation.navigate('SignIn');
+        props.navigation.navigate('SignIn');
       }
     });
 
     return unsubscribe;
-  }, [dispatch, navigation]);
+  }, [dispatch, props.navigation]);
 
   if (loading) {
     return (
