@@ -54,12 +54,24 @@ const HomePage = (props:any) => {
     },
   ];
 
+  // const handleTabPress = (tab: string) => {
+  //   if (tab === 'Add') {
+  //     setShowAddOptions(!showAddOptions);
+  //   } else {
+  //     setActiveTab(tab);
+  //     setShowAddOptions(false);
+  //   }
+  // };
   const handleTabPress = (tab: string) => {
     if (tab === 'Add') {
       setShowAddOptions(!showAddOptions);
     } else {
       setActiveTab(tab);
       setShowAddOptions(false);
+
+      if (tab === 'Transaction') {  // Updated: Navigate to "Transaction" screen when the "Transaction" tab is pressed
+        props.navigation.navigate('Transaction');  // Updated: Replace with your screen's name
+      }
     }
   };
   return (

@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { launchCamera, launchImageLibrary, Asset } from 'react-native-image-picker';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 
-const AddExpense = () => {
+const AddIncome = () => {
   const [selectedFile, setSelectedFile] = useState<Asset | DocumentPickerResponse | null>(null);
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
@@ -483,4 +483,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddExpense;
+export default AddIncome;

@@ -9,11 +9,10 @@ import HomePage from '../screens/Home/Home';
 import AddExpense from '../screens/addExpense/AddExpense';
 import AddIncome from '../screens/addIncome/AddIncome';
 import TransactionScreen from '../screens/transaction/Transaction';
-import FinancialReportScreen from '../screens/financialReport/FinancialReport';
 
 const Stack = createStackNavigator();
 
-const AppNavigator = () => {
+const StackNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Auth">
@@ -25,10 +24,9 @@ const AppNavigator = () => {
         <Stack.Screen name="AddExpense" component={AddExpense} options={{ headerShown: false }} />
         <Stack.Screen name="AddIncome" component={AddIncome} options={{ headerShown: false }} />
         <Stack.Screen name="Transaction" component={TransactionScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="FinancialReportScreen" component={FinancialReportScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
-export default AppNavigator;
+export default StackNavigator;
