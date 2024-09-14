@@ -10,6 +10,7 @@ import AddExpense from '../screens/addExpense/AddExpense';
 import AddIncome from '../screens/addIncome/AddIncome';
 import TransactionScreen from '../screens/transaction/Transaction';
 import FinancialReportScreen from '../screens/financialReport/FinancialReport';
+import DetailTransactionScreen from '../screens/detailTransaction/DetailTransaction';
 
 const Stack = createStackNavigator();
 
@@ -26,6 +27,7 @@ const AppNavigator = () => {
         <Stack.Screen name="AddIncome" component={AddIncome} options={{ headerShown: false }} />
         <Stack.Screen name="Transaction" component={TransactionScreen} options={{ headerShown: false }} />
         <Stack.Screen name="FinancialReportScreen" component={FinancialReportScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="DetailTransactionScreen" component={DetailTransactionScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
