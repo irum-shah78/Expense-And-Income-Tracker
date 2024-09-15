@@ -25,8 +25,6 @@ const FinancialReportScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Financial Report</Text>
       </View>
-
-      {/* Month Dropdown & Timer */}
       <View style={styles.header2}>
         <TouchableOpacity style={styles.dropdown}>
           <Image source={require('../../../src/assets/icons/arrow-down-month.png')} />
@@ -37,7 +35,6 @@ const FinancialReportScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Donut Chart */}
       <View style={styles.chartContainer}>
         <TouchableOpacity>
           <Image
@@ -50,9 +47,7 @@ const FinancialReportScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Expense/Income Toggle */}
       <View style={styles.toggleContainer}>
-        {/* Button Switcher */}
         <View style={styles.switcher}>
           <TouchableOpacity
             style={[styles.button, activeTab === 'Expense' && styles.activeButton]}
@@ -69,7 +64,6 @@ const FinancialReportScreen = () => {
         </View>
       </View>
 
-      {/* Categories and Amounts */}
       <View style={styles.header2}>
         <TouchableOpacity style={styles.dropdown}>
           <Image source={require('../../../src/assets/icons/arrow-down-month.png')} />
@@ -80,7 +74,6 @@ const FinancialReportScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Conditionally Render Category Items Based on Active Tab */}
       <ScrollView style={styles.listContainer} >
         {(activeTab === 'Expense' ? expenseData : incomeData).map((item, index) => (
           <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => navigation.navigate('DetailTransactionScreen')} >

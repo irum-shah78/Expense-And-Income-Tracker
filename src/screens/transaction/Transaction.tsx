@@ -92,13 +92,11 @@ const TransactionScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Report Button */}
       <TouchableOpacity style={styles.reportButton} onPress={() => navigation.navigate('FinancialReportScreen')}>
         <Text style={styles.reportButtonText}>See your financial report</Text>
         <Image source={require('../../../src/assets/icons/arrow-right-2.png')} />
       </TouchableOpacity>
 
-      {/* Transactions */}
       <ScrollView style={styles.transactionsContainer}>
         <Text style={styles.dateTitle}>Today</Text>
         {data.slice(0, 3).map((item, index) => (
@@ -431,7 +429,6 @@ const styles = StyleSheet.create({
   },
   filterOptions: {
     flexDirection: 'row',
-    // justifyContent: 'space-between',
     gap: 8,
     marginBottom: 20,
   },

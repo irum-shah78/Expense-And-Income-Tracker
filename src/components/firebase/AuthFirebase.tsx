@@ -99,7 +99,7 @@ import auth from '@react-native-firebase/auth';
 import { NavigationProp } from '@react-navigation/native';
 
 type AuthFirebaseProps = {
-  navigation: NavigationProp<any>; // Replace 'any' with your stack's type if you have one
+  navigation: NavigationProp<any>;
 };
 
 const AuthFirebase: React.FC<AuthFirebaseProps> = (props) => {

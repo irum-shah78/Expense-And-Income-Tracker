@@ -69,8 +69,8 @@ const HomePage = (props:any) => {
       setActiveTab(tab);
       setShowAddOptions(false);
 
-      if (tab === 'Transaction') {  // Updated: Navigate to "Transaction" screen when the "Transaction" tab is pressed
-        props.navigation.navigate('Transaction');  // Updated: Replace with your screen's name
+      if (tab === 'Transaction') {
+        props.navigation.navigate('Transaction');
       }
     }
   };
@@ -273,7 +273,6 @@ const styles = StyleSheet.create({
   overlayBottom: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(248, 237, 216, 0)',
-    // top: '50%',
     borderBottomEndRadius: 30,
   },
   content: {
@@ -398,7 +397,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   graphSection: {
-    // marginVertical: 10,
     marginHorizontal: 5,
   },
   spendFrequencyText: {

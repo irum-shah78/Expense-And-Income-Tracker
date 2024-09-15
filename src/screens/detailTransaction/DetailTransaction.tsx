@@ -33,16 +33,12 @@ const DetailTransactionScreen = () => {
             <Image source={require('../../../src/assets/icons/trash.png')} />
           </TouchableOpacity>
         </View>
-
-        {/* Transaction Amount and Title */}
         <View style={styles.amountContainer}>
           <Text style={styles.amount}>$120</Text>
           <Text style={styles.title}>Buy some grocery</Text>
           <Text style={styles.date}>Saturday 4 June 2021  16:20</Text>
         </View>
       </View>
-
-      {/* Type, Category, Wallet */}
       <View style={styles.infoContainer}>
         <View style={styles.infoItem}>
           <Text style={styles.infoTitle}>Type</Text>
@@ -57,8 +53,6 @@ const DetailTransactionScreen = () => {
           <Text style={styles.infoValue}>Wallet</Text>
         </View>
       </View>
-
-      {/* Description */}
       <View style={styles.section}>
         <View style={styles.Line}>
           <DashedLine dashLength={10} dashThickness={2} dashGap={8} dashColor="#E3E5E5" />
@@ -68,9 +62,6 @@ const DetailTransactionScreen = () => {
           Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit.
           Exercitation veniam consequat sunt nostrud amet.
         </Text>
-
-
-        {/* Attachment */}
         <View>
           <Text style={styles.sectionTitle}>Attachment</Text>
           <View style={styles.imageContainer}>
@@ -245,9 +236,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-
-
-
   whiteBackground: {
     backgroundColor: '#fff',
     paddingVertical: 60,
