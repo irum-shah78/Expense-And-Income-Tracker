@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 
-const FinancialReportScreen = () => {
+const FinancialReportScreen = (props:any) => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<'Expense' | 'Income'>('Expense');
   const expenseData = [
@@ -76,7 +76,7 @@ const FinancialReportScreen = () => {
 
       <ScrollView style={styles.listContainer} >
         {(activeTab === 'Expense' ? expenseData : incomeData).map((item, index) => (
-          <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => navigation.navigate('DetailTransactionScreen')} >
+          <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => props.navigation.navigate('DetailTransactionScreen')} >
             <View style={styles.itemLeft}>
               <View style={[styles.colorIndicator, { backgroundColor: item.color }]} />
               <Text style={styles.itemCategory}>{item.category}</Text>

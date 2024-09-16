@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-// import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 
-const HomePage = (props:any) => {
+const HomePage = () => {
   const [selectedTab, setSelectedTab] = useState('Today');
-  const [activeTab, setActiveTab] = useState('Home');
-  const [showAddOptions, setShowAddOptions] = useState(false);
-  // const navigation = useNavigation();
   const tabs = ['Today', 'Week', 'Month', 'Year'];
 
   const data = [
@@ -53,43 +49,8 @@ const HomePage = (props:any) => {
       borderRadius: 16,
     },
   ];
-
-  // const handleTabPress = (tab: string) => {
-  //   if (tab === 'Add') {
-  //     setShowAddOptions(!showAddOptions);
-  //   } else {
-  //     setActiveTab(tab);
-  //     setShowAddOptions(false);
-  //   }
-  // };
-  const handleTabPress = (tab: string) => {
-    if (tab === 'Add') {
-      setShowAddOptions(!showAddOptions);
-    } else {
-      setActiveTab(tab);
-      setShowAddOptions(false);
-
-      if (tab === 'Transaction') {
-        props.navigation.navigate('Transaction');
-      }
-    }
-  };
   return (
     <SafeAreaView style={styles.container}>
-      {showAddOptions && (
-        <View style={styles.overlay}>
-          <View style={styles.addOptionsContainer}>
-            <TouchableOpacity style={styles.incomeButton} onPress={() => props.navigation.navigate('AddIncome')} >
-              <Image source={require('../../assets/icons/Income-white.png')} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.expenseButton} onPress={() => props.navigation.navigate('AddExpense')}>
-              <Image source={require('../../assets/icons/Expense-white.png')} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.overlayTop} />
@@ -201,54 +162,6 @@ const HomePage = (props:any) => {
             </View>
           </View>
         ))}
-      </View>
-
-      {/* Bottom Navigation */}
-      <View style={styles.navBarContainer}>
-        <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Home')}>
-          <Image
-            source={require('../../assets/icons/home-on.png')}
-            style={[styles.navIcon, activeTab === 'Home' && styles.navIconActive]}
-          />
-          <Text style={activeTab === 'Home' ? styles.navTextActive : styles.navText}>Home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Transaction')}>
-          <Image
-            source={require('../../assets/icons/Transaction.png')}
-            style={[styles.navIcon, activeTab === 'Transaction' && styles.navIconActive]}
-          />
-          <Text style={activeTab === 'Transaction' ? styles.navTextActive : styles.navText}>Transaction</Text>
-        </TouchableOpacity>
-
-        <View style={styles.addButtonWrapper}>
-          <TouchableOpacity style={styles.addButton} onPress={() => handleTabPress('Add')}>
-            <Image
-              source={
-                showAddOptions
-                  ? require('../../assets/icons/close.png')
-                  : require('../../assets/icons/add.png')
-              }
-              style={styles.addIcon}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Budget')}>
-          <Image
-            source={require('../../assets/icons/Pie-chart.png')}
-            style={[styles.navIcon, activeTab === 'Budget' && styles.navIconActive]}
-          />
-          <Text style={activeTab === 'Budget' ? styles.navTextActive : styles.navText}>Budget</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Profile')}>
-          <Image
-            source={require('../../assets/icons/user.png')}
-            style={[styles.navIcon, activeTab === 'Profile' && styles.navIconActive]}
-          />
-          <Text style={activeTab === 'Profile' ? styles.navTextActive : styles.navText}>Profile</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

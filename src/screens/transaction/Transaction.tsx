@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+// import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, Modal } from 'react-native';
 
-const TransactionScreen = () => {
+const TransactionScreen = (props:any) => {
   const [modalVisible, setModalVisible] = useState(false);
-    const navigation = useNavigation();
+    // const navigation = useNavigation();
   const data = [
     {
       id: 1,
@@ -92,7 +92,7 @@ const TransactionScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.reportButton} onPress={() => navigation.navigate('FinancialReportScreen')}>
+      <TouchableOpacity style={styles.reportButton} onPress={() => props.navigation.navigate('FinancialReportScreen')}>
         <Text style={styles.reportButtonText}>See your financial report</Text>
         <Image source={require('../../../src/assets/icons/arrow-right-2.png')} />
       </TouchableOpacity>
