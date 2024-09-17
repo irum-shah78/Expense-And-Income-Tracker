@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 
-const FinancialReportScreen = (props:any) => {
+const FinancialReportScreen = (props: any) => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<'Expense' | 'Income'>('Expense');
   const expenseData = [

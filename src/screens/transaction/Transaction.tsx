@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 // import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, Modal } from 'react-native';
 
-const TransactionScreen = (props:any) => {
+const TransactionScreen = (props: any) => {
   const [modalVisible, setModalVisible] = useState(false);
-    // const navigation = useNavigation();
+  // const navigation = useNavigation();
   const data = [
     {
       id: 1,
