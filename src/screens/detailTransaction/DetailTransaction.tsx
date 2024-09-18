@@ -1,29 +1,39 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import DashedLine from 'react-native-dashed-line';
+
+type RootStackParamList = {
+  DetailTransaction: {
+    transactionType: 'expense' | 'income';
+  };
+};
+
+type DetailTransactionScreenRouteProp = RouteProp<RootStackParamList, 'DetailTransaction'>;
 
 const DetailTransactionScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute<DetailTransactionScreenRouteProp>();
   const [modalVisible, setModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const { transactionType } = route.params;
 
   const handleContinueClick = () => {
     setModalVisible(false);
     setIsModalVisible(true);
-    // setTimeout(() => {
-    //   setIsModalVisible(false);
-    // }, 2000);
   };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
   };
 
+  const backgroundStyle = transactionType === 'expense' ? styles.expenseBackground : styles.incomeBackground;
+  const amountContainerStyle = transactionType === 'expense' ? styles.expenseAmountContainer : styles.incomeAmountContainer;
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
-      <View style={styles.expenseBackground}>
+      <View style={backgroundStyle}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Image source={require('../../../src/assets/icons/arrowleft.png')} style={styles.backIcon} />
@@ -33,7 +43,7 @@ const DetailTransactionScreen = () => {
             <Image source={require('../../../src/assets/icons/trash.png')} />
           </TouchableOpacity>
         </View>
-        <View style={styles.amountContainer}>
+        <View style={[styles.amountContainer, amountContainerStyle]}>
           <Text style={styles.amount}>$120</Text>
           <Text style={styles.title}>Buy some grocery</Text>
           <Text style={styles.date}>Saturday 4 June 2021  16:20</Text>
@@ -42,7 +52,7 @@ const DetailTransactionScreen = () => {
       <View style={styles.infoContainer}>
         <View style={styles.infoItem}>
           <Text style={styles.infoTitle}>Type</Text>
-          <Text style={styles.infoValue}>Expense</Text>
+          <Text style={styles.infoValue}>{transactionType === 'expense' ? 'Expense' : 'Income'}</Text>
         </View>
         <View style={styles.infoItem}>
           <Text style={styles.infoTitle}>Category</Text>
@@ -151,12 +161,26 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: 1,
   },
+  incomeBackground: {
+    backgroundColor: '#3CB371',
+    height: 282,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    position: 'relative',
+    zIndex: 1,
+  },
   amountContainer: {
     alignItems: 'center',
     backgroundColor: '#FD3C4A',
     paddingVertical: 20,
     borderRadius: 12,
     marginBottom: 20,
+  },
+  expenseAmountContainer: {
+    backgroundColor: '#FD3C4A',
+  },
+  incomeAmountContainer: {
+    backgroundColor: '#3CB371',
   },
   amount: {
     fontSize: 48,
@@ -238,7 +262,7 @@ const styles = StyleSheet.create({
   },
   whiteBackground: {
     backgroundColor: '#fff',
-    paddingVertical: 60,
+    paddingVertical: '25%',
   },
   continueButton: {
     backgroundColor: '#7F3DFF',

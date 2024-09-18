@@ -1,25 +1,40 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import DashedLine from 'react-native-dashed-line';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../store/slices/authSlice';
 
-const ProfileScreen = (props:any) => {
+interface ProfileScreenProps {
+  navigation: any;
+}
+
+const ProfileScreen: React.FC<ProfileScreenProps> = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const dispatch = useDispatch();
+  const user = useSelector((state: any) => state.auth.user);
+
   const handleContinueClick = () => {
+    dispatch(logout());
     setModalVisible(false);
+    props.navigation.navigate('SignIn');
   };
+
+  const userName = user?.displayName || 'Username';
+
   return (
     <View style={styles.container}>
       {/* Profile Section */}
       <View style={styles.profileContainer}>
         <View style={styles.border}>
           <Image
-            source={require('../../assets/images/profile.png')}
+            source={user?.photoURL ? { uri: user.photoURL } : require('../../assets/images/profile.png')}
             style={styles.profileImage}
           />
+
         </View>
         <View style={styles.profileDetails}>
           <Text style={styles.usernameLabel}>Username</Text>
-          <Text style={styles.username}>Iriana Saliha</Text>
+          <Text style={styles.username}>{userName}</Text>
         </View>
         <TouchableOpacity style={styles.editButton} onPress={() => props.navigation.navigate('UpdateProfile')}>
           <Image
@@ -66,27 +81,27 @@ const ProfileScreen = (props:any) => {
       </View>
 
       <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.dragLineContainer}>
-                <Image source={require('../../../src/assets/icons/Line-5.png')} style={styles.dragLine} />
-              </View>
-              <View style={styles.modalDescriptionContainer}>
-                <Text style={styles.modalTitle}>Logout?</Text>
-                <Text style={styles.modalDescription}>Are you sure do you wanna logout?</Text>
-              </View>
-              <View style={styles.modalButtonContainer}>
-                <TouchableOpacity style={styles.noButton} onPress={() => setModalVisible(false)}>
-                  <Text style={styles.noButtonText}>No</Text>
-                </TouchableOpacity>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.dragLineContainer}>
+              <Image source={require('../../../src/assets/icons/Line-5.png')} style={styles.dragLine} />
+            </View>
+            <View style={styles.modalDescriptionContainer}>
+              <Text style={styles.modalTitle}>Logout?</Text>
+              <Text style={styles.modalDescription}>Are you sure you want to logout?</Text>
+            </View>
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity style={styles.noButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.noButtonText}>No</Text>
+              </TouchableOpacity>
 
-                <TouchableOpacity style={styles.yesButton} onPress={handleContinueClick}>
-                  <Text style={styles.yesButtonText}>Yes</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={styles.yesButton} onPress={handleContinueClick}>
+                <Text style={styles.yesButtonText}>Yes</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -173,12 +188,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#292B2D',
   },
-
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    // height: 191,
   },
   modalContent: {
     backgroundColor: '#fff',
