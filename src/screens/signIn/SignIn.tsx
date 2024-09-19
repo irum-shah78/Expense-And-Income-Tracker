@@ -1,3 +1,75 @@
+// import React, { useEffect, useState } from 'react';
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   StyleSheet,
+//   TouchableOpacity,
+//   Image,
+//   ToastAndroid,
+//   SafeAreaView,
+//   ScrollView,
+// } from 'react-native';
+// import auth from '@react-native-firebase/auth';
+// import { useNavigation } from '@react-navigation/native';
+// import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+// const SignInScreen = (props:any) => {
+//   const [email, setEmail] = useState<string>('');
+//   const [password, setPassword] = useState<string>('');
+//   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+//   const navigation = useNavigation();
+
+//   useEffect(() => {
+//     GoogleSignin.configure({
+//       webClientId: '153932310972-7o5t86d76tli42v6u13bdj1t7u1q5mh1.apps.googleusercontent.com',
+//     });
+//   }, []);
+
+//   const onGoogleButtonPress = async () => {
+//     try {
+//       await GoogleSignin.hasPlayServices();
+//       const userInfo = await GoogleSignin.signIn();
+//       const idToken = userInfo.idToken;
+//       if (!idToken) {
+//         throw new Error('Google Sign-In failed. No ID token returned.');
+//       }
+//       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+//       await auth().signInWithCredential(googleCredential);
+//       props.navigation.navigate('Home');
+//     } catch (error) {
+//       console.error('Google Sign-In Error:', error);
+//       ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
+//     }
+//   };
+
+//   const userSignIn = () => {
+//     if (email.length === 0 || password.length === 0) {
+//       ToastAndroid.show('Please fill all the fields.', ToastAndroid.CENTER);
+//       return;
+//     }
+
+//     auth()
+//       .signInWithEmailAndPassword(email, password)
+//       .then(() => {
+//         ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
+//         props.navigation.navigate('Home');
+//       })
+//       .catch(error => {
+//         if (error.code === 'auth/user-not-found') {
+//           ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
+//         } else if (error.code === 'auth/wrong-password') {
+//           ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
+//         } else if (error.code === 'auth/invalid-email') {
+//           ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
+//         } else {
+//           console.error(error);
+//           ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
+//         }
+//       });
+//   };
+
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -10,15 +82,22 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useDispatch, useSelector } from 'react-redux';
+import { googleLoginAsync } from '../../store/slices/authSlice'; // Import your googleLoginAsync action
+import { RootState } from '../../store/store'; // Import the RootState to type the useSelector
+import auth from '@react-native-firebase/auth';
 
-const SignInScreen = () => {
+
+const SignInScreen = (props: any) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  // Access the auth state from Redux store
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -26,23 +105,79 @@ const SignInScreen = () => {
     });
   }, []);
 
+  // const onGoogleButtonPress = async () => {
+  //   // Dispatch the Google login action
+  //   dispatch(googleLoginAsync())
+  //     .unwrap()
+  //     .then(() => {
+  //       ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
+  //       props.navigation.navigate('Home');
+  //     })
+  //     .catch(() => {
+  //       ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
+  //       console.error('Google Sign-In Error:', error);
+  //     });
+  // };
+
+
+  // const onGoogleButtonPress = async () => {
+  //   try {
+  //     const result = await dispatch(googleLoginAsync()).unwrap();
+  //     if (result) {
+  //       ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
+  //       props.navigation.navigate('Home');
+  //     }
+  //   } catch (err) {
+  //     if (err instanceof Error) {
+  //       ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
+  //       console.error('Google Sign-In Error:', err.message);
+  //     }
+  //   }
+  // };
+
   const onGoogleButtonPress = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      const idToken = userInfo.idToken;
-      if (!idToken) {
-        throw new Error('Google Sign-In failed. No ID token returned.');
+      const resultAction = await dispatch(googleLoginAsync());
+      if (googleLoginAsync.fulfilled.match(resultAction)) {
+        ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
+        props.navigation.navigate('Home');
+      } else {
+        ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
       }
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(googleCredential);
-      navigation.navigate('Home');
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
+    } catch (err) {
       ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
+      console.error('Google Sign-In Error:', err);
     }
   };
 
+  // const userSignIn = () => {
+  //   if (email.length === 0 || password.length === 0) {
+  //     ToastAndroid.show('Please fill all the fields.', ToastAndroid.CENTER);
+  //     return;
+  //   }
+
+  //   // Handle email sign-in here (no changes to this part)
+  //   auth()
+  //     .signInWithEmailAndPassword(email, password)
+  //     .then(() => {
+  //       ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
+  //       props.navigation.navigate('Home');
+  //     })
+  //     .catch(error => {
+  //       if (error.code === 'auth/user-not-found') {
+  //         ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
+  //       } else if (error.code === 'auth/wrong-password') {
+  //         ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
+  //       } else if (error.code === 'auth/invalid-email') {
+  //         ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
+  //       } else {
+  //         console.error(error);
+  //         ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
+  //       }
+  //     });
+  // };
+
+  // Navigate to home after successful authentication
   const userSignIn = () => {
     if (email.length === 0 || password.length === 0) {
       ToastAndroid.show('Please fill all the fields.', ToastAndroid.CENTER);
@@ -53,21 +188,32 @@ const SignInScreen = () => {
       .signInWithEmailAndPassword(email, password)
       .then(() => {
         ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
-        navigation.navigate('Home');
+        props.navigation.navigate('Home');
       })
-      .catch(error => {
-        if (error.code === 'auth/user-not-found') {
-          ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
-        } else if (error.code === 'auth/wrong-password') {
-          ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
-        } else if (error.code === 'auth/invalid-email') {
-          ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
-        } else {
-          console.error(error);
-          ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
+      .catch((error) => {
+        if (error instanceof Error) {
+          if (error.message.includes('auth/user-not-found')) {
+            ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
+          } else if (error.message.includes('auth/wrong-password')) {
+            ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
+          } else if (error.message.includes('auth/invalid-email')) {
+            ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
+          } else {
+            console.error(error);
+            ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
+          }
         }
       });
   };
+
+
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      props.navigation.navigate('Home');
+    }
+  }, [isAuthenticated, props.navigation]);
+
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -122,7 +268,7 @@ const SignInScreen = () => {
             <TouchableOpacity style={styles.signInButton} onPress={userSignIn}>
               <Text style={styles.signInButtonText}>Login</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')}>
+            <TouchableOpacity onPress={() => props.navigation.navigate('ForgetPassword')}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
             <Text style={styles.orText}>or</Text>
@@ -135,7 +281,7 @@ const SignInScreen = () => {
             </TouchableOpacity>
             <Text style={styles.signUpRedirectText}>
               Don't have an account yet?{' '}
-              <Text style={styles.signUpLink} onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.signUpLink} onPress={() => props.navigation.navigate('SignUp')}>
                 Sign Up
               </Text>
             </Text>

@@ -14,7 +14,7 @@ import CheckBox from '@react-native-community/checkbox';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
-const SignUpScreen = () => {
+const SignUpScreen = (props:any) => {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -43,7 +43,7 @@ const SignUpScreen = () => {
           })
           .then(() => {
             ToastAndroid.show('User account created & signed in!', ToastAndroid.LONG);
-            navigation.navigate('SignIn');
+            props.navigation.navigate('SignIn');
           })
           .catch(error => {
             console.error('Error updating user profile:', error);
@@ -146,7 +146,7 @@ const SignUpScreen = () => {
             </TouchableOpacity>
 
             <Text style={styles.loginRedirectText}>
-              Already have an account? <Text style={styles.loginLink} onPress={() => navigation.navigate('SignIn')}>Login</Text>
+              Already have an account? <Text style={styles.loginLink} onPress={() => props.navigation.navigate('SignIn')}>Login</Text>
             </Text>
           </View>
         </View>
