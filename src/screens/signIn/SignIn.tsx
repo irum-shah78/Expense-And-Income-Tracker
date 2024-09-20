@@ -20,25 +20,27 @@
 //   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 //   const navigation = useNavigation();
 
-//   useEffect(() => {
-//     GoogleSignin.configure({
-//       webClientId: '153932310972-7o5t86d76tli42v6u13bdj1t7u1q5mh1.apps.googleusercontent.com',
-//     });
-//   }, []);
+//   // useEffect(() => {
+//   //   GoogleSignin.configure({
+//   //     webClientId: '153932310972-7o5t86d76tli42v6u13bdj1t7u1q5mh1.apps.googleusercontent.com',
+//   //   });
+//   // }, []);
 
 //   const onGoogleButtonPress = async () => {
 //     try {
+//       GoogleSignin.configure({
+//         offlineAccess: false,
+//         webClientId: '153932310972-7o5t86d76tli42v6u13bdj1t7u1q5mh1.apps.googleusercontent.com',
+//       });
 //       await GoogleSignin.hasPlayServices();
-//       const userInfo = await GoogleSignin.signIn();
-//       const idToken = userInfo.idToken;
-//       if (!idToken) {
-//         throw new Error('Google Sign-In failed. No ID token returned.');
-//       }
+//       // const userInfo = await GoogleSignin.signIn();
+//       const {idToken} = await GoogleSignin.signIn();
 //       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 //       await auth().signInWithCredential(googleCredential);
 //       props.navigation.navigate('Home');
+//       // return userInfo;
 //     } catch (error) {
-//       console.error('Google Sign-In Error:', error);
+//       console.error('Google Sin-In Error:', error);
 //       ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
 //     }
 //   };
@@ -69,8 +71,206 @@
 //       });
 //   };
 
+//   return (
+//     <SafeAreaView style={styles.safeAreaContainer}>
+//       <ScrollView contentContainerStyle={styles.scrollViewContent}>
+//         <View style={styles.container}>
+//           <View style={styles.headerContainer}>
+//             <TouchableOpacity
+//               style={styles.backButton}
+//               onPress={() => navigation.goBack()}
+//             >
+//               <Image
+//                 source={require('../../../src/assets/icons/arrow-left-onboarding.png')}
+//                 style={styles.backIcon}
+//               />
+//             </TouchableOpacity>
+//             <Text style={styles.headerText}>Login</Text>
+//           </View>
 
-import React, { useEffect, useState } from 'react';
+//           <View style={styles.inputContainer}>
+//             <TextInput
+//               style={styles.input}
+//               placeholder="Email"
+//               placeholderTextColor={'#91919F'}
+//               keyboardType="email-address"
+//               value={email}
+//               onChangeText={(mail) => setEmail(mail)}
+//             />
+//             <View style={styles.passwordContainer}>
+//               <TextInput
+//                 style={styles.input}
+//                 placeholder="Password"
+//                 placeholderTextColor={'#91919F'}
+//                 secureTextEntry={!passwordVisible}
+//                 autoCorrect={false}
+//                 autoCapitalize="none"
+//                 value={password}
+//                 onChangeText={(pwd) => setPassword(pwd)}
+//               />
+//               <TouchableOpacity
+//                 style={styles.eyeIcon}
+//                 onPress={() => setPasswordVisible(!passwordVisible)}
+//               >
+//                 <Image
+//                   source={
+//                     passwordVisible
+//                       ? require('../../../src/assets/icons/eye.png')
+//                       : require('../../../src/assets/icons/eye-close.png')
+//                   }
+//                   style={styles.iconImage}
+//                 />
+//               </TouchableOpacity>
+//             </View>
+//             <TouchableOpacity style={styles.signInButton} onPress={userSignIn}>
+//               <Text style={styles.signInButtonText}>Login</Text>
+//             </TouchableOpacity>
+//             <TouchableOpacity onPress={() => props.navigation.navigate('ForgetPassword')}>
+//               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+//             </TouchableOpacity>
+//             <Text style={styles.orText}>or</Text>
+//             <TouchableOpacity style={styles.googleButton}>
+//               <Image
+//                 source={require('../../../src/assets/icons/flat-color-icons_google.png')}
+//                 style={styles.googleIcon}
+//               />
+//               <Text style={styles.googleButtonText} onPress={onGoogleButtonPress}> Sign In with Google</Text>
+//             </TouchableOpacity>
+//             <Text style={styles.signUpRedirectText}>
+//               Don't have an account yet?{' '}
+//               <Text style={styles.signUpLink} onPress={() => props.navigation.navigate('SignUp')}>
+//                 Sign Up
+//               </Text>
+//             </Text>
+//           </View>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// };
+
+// export default SignInScreen;
+
+// const styles = StyleSheet.create({
+//   safeAreaContainer: {
+//     flex: 1,
+//     backgroundColor: '#FFFFFF',
+//   },
+//   scrollViewContent: {
+//     justifyContent: 'center',
+//     backgroundColor: '#FFFFFF',
+//   },
+//   container: {
+//     marginTop: 30,
+//     color: 'black',
+//     padding: 20,
+//     justifyContent: 'center',
+//   },
+//   inputContainer: {
+//     marginTop: 60,
+//     color: 'black',
+//   },
+//   headerContainer: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginBottom: 20,
+//     marginLeft: 10,
+//     gap: 90,
+//   },
+//   backButton: {
+//     marginRight: 10,
+//   },
+//   backIcon: {
+//     objectFit: 'contain',
+//   },
+//   headerText: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: 'black',
+//   },
+//   input: {
+//     height: 56,
+//     borderWidth: 1,
+//     borderColor: '#F1F1FA',
+//     borderRadius: 15,
+//     paddingHorizontal: 15,
+//     marginBottom: 20,
+//     fontSize: 16,
+//     color: 'black',
+//   },
+//   passwordContainer: {
+//     position: 'relative',
+//   },
+//   eyeIcon: {
+//     position: 'absolute',
+//     right: 15,
+//     top: 16,
+//   },
+//   iconImage: {
+//     objectFit: 'contain',
+//     height: 24,
+//     width: 24,
+//   },
+//   forgotPasswordText: {
+//     textAlign: 'right',
+//     color: '#7F3DFF',
+//     textDecorationLine: 'underline',
+//     fontWeight: 'bold',
+//     fontSize: 18,
+//   },
+//   orText: {
+//     fontWeight: '900',
+//     textAlign: 'center',
+//     marginBottom: 15,
+//     color: 'gray',
+//   },
+//   signInButton: {
+//     backgroundColor: '#7F3DFF',
+//     paddingVertical: 17,
+//     borderRadius: 10,
+//     alignItems: 'center',
+//     marginBottom: 20,
+//     marginTop: 10,
+//     height: 56,
+//   },
+//   signInButtonText: {
+//     color: 'white',
+//     fontWeight: 'bold',
+//     fontSize: 16,
+//   },
+//   googleButton: {
+//     height: 56,
+//     flexDirection: 'row',
+//     borderWidth: 1,
+//     borderColor: '#F1F1FA',
+//     paddingVertical: 15,
+//     borderRadius: 10,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     marginBottom: 20,
+//   },
+//   googleIcon: {
+//     width: 32,
+//     height: 32,
+//     marginRight: 10,
+//   },
+//   googleButtonText: {
+//     color: '#212325',
+//     fontSize: 18,
+//   },
+//   signUpRedirectText: {
+//     textAlign: 'center',
+//     color: 'gray',
+//     fontSize: 16,
+//   },
+//   signUpLink: {
+//     color: '#7F3DFF',
+//     textDecorationLine: 'underline',
+//   },
+// });
+
+
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -83,101 +283,31 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { useDispatch, useSelector } from 'react-redux';
-import { googleLoginAsync } from '../../store/slices/authSlice'; // Import your googleLoginAsync action
-import { RootState } from '../../store/store'; // Import the RootState to type the useSelector
+// import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useAppDispatch, useAppSelector } from '../../store/store'; // Assuming you have typed hooks
+import { signInWithGoogle } from '../../store/slices/authSlice';
 import auth from '@react-native-firebase/auth';
-
 
 const SignInScreen = (props: any) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const { error, loading } = useAppSelector((state) => state.auth);
   const navigation = useNavigation();
-  const dispatch = useDispatch();
-  // Access the auth state from Redux store
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: '153932310972-7o5t86d76tli42v6u13bdj1t7u1q5mh1.apps.googleusercontent.com',
-    });
-  }, []);
-
-  // const onGoogleButtonPress = async () => {
-  //   // Dispatch the Google login action
-  //   dispatch(googleLoginAsync())
-  //     .unwrap()
-  //     .then(() => {
-  //       ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
-  //       props.navigation.navigate('Home');
-  //     })
-  //     .catch(() => {
-  //       ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
-  //       console.error('Google Sign-In Error:', error);
-  //     });
-  // };
-
-
-  // const onGoogleButtonPress = async () => {
-  //   try {
-  //     const result = await dispatch(googleLoginAsync()).unwrap();
-  //     if (result) {
-  //       ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
-  //       props.navigation.navigate('Home');
-  //     }
-  //   } catch (err) {
-  //     if (err instanceof Error) {
-  //       ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
-  //       console.error('Google Sign-In Error:', err.message);
-  //     }
-  //   }
-  // };
 
   const onGoogleButtonPress = async () => {
-    try {
-      const resultAction = await dispatch(googleLoginAsync());
-      if (googleLoginAsync.fulfilled.match(resultAction)) {
-        ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
-        props.navigation.navigate('Home');
-      } else {
-        ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
-      }
-    } catch (err) {
-      ToastAndroid.show('Google Sign-In failed. Please try again.', ToastAndroid.LONG);
-      console.error('Google Sign-In Error:', err);
-    }
+    dispatch(signInWithGoogle())
+      .unwrap()
+      .then(() => {
+        ToastAndroid.show('Google Sign-In successful!', ToastAndroid.LONG);
+        navigation.navigate('Home');
+      })
+      .catch((err) => {
+        ToastAndroid.show(err, ToastAndroid.LONG);
+      });
   };
 
-  // const userSignIn = () => {
-  //   if (email.length === 0 || password.length === 0) {
-  //     ToastAndroid.show('Please fill all the fields.', ToastAndroid.CENTER);
-  //     return;
-  //   }
-
-  //   // Handle email sign-in here (no changes to this part)
-  //   auth()
-  //     .signInWithEmailAndPassword(email, password)
-  //     .then(() => {
-  //       ToastAndroid.show('Signed in successfully!', ToastAndroid.LONG);
-  //       props.navigation.navigate('Home');
-  //     })
-  //     .catch(error => {
-  //       if (error.code === 'auth/user-not-found') {
-  //         ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
-  //       } else if (error.code === 'auth/wrong-password') {
-  //         ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
-  //       } else if (error.code === 'auth/invalid-email') {
-  //         ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
-  //       } else {
-  //         console.error(error);
-  //         ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
-  //       }
-  //     });
-  // };
-
-  // Navigate to home after successful authentication
   const userSignIn = () => {
     if (email.length === 0 || password.length === 0) {
       ToastAndroid.show('Please fill all the fields.', ToastAndroid.CENTER);
@@ -191,28 +321,17 @@ const SignInScreen = (props: any) => {
         props.navigation.navigate('Home');
       })
       .catch((error) => {
-        if (error instanceof Error) {
-          if (error.message.includes('auth/user-not-found')) {
-            ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
-          } else if (error.message.includes('auth/wrong-password')) {
-            ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
-          } else if (error.message.includes('auth/invalid-email')) {
-            ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
-          } else {
-            console.error(error);
-            ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
-          }
+        if (error.code === 'auth/user-not-found') {
+          ToastAndroid.show('No user found with this email!', ToastAndroid.LONG);
+        } else if (error.code === 'auth/wrong-password') {
+          ToastAndroid.show('Incorrect password. Try again!', ToastAndroid.LONG);
+        } else if (error.code === 'auth/invalid-email') {
+          ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
+        } else {
+          ToastAndroid.show('Sign-in failed. Please try again.', ToastAndroid.LONG);
         }
       });
   };
-
-
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      props.navigation.navigate('Home');
-    }
-  }, [isAuthenticated, props.navigation]);
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
