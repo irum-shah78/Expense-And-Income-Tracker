@@ -11,18 +11,21 @@ import {
   ScrollView,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
-import auth from '@react-native-firebase/auth';
+import { useDispatch } from 'react-redux';
+import { userRegister } from '../../store/slices/authSlice';
 import { useNavigation } from '@react-navigation/native';
+import { AppDispatch } from '../../store/store';
 
-const SignUpScreen = (props:any) => {
+const SignUpScreen = (props: any) => {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [isChecked, setChecked] = useState<boolean>(false);
   const navigation = useNavigation();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const userRegister = () => {
+  const handleRegister = () => {
     if (name.length === 0 || email.length === 0 || password.length === 0) {
       ToastAndroid.show('Please fill all the fields.', ToastAndroid.CENTER);
       return;
@@ -33,32 +36,15 @@ const SignUpScreen = (props:any) => {
       return;
     }
 
-    auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        const user = userCredential.user;
-        user
-          .updateProfile({
-            displayName: name,
-          })
-          .then(() => {
-            ToastAndroid.show('User account created & signed in!', ToastAndroid.LONG);
-            props.navigation.navigate('SignIn');
-          })
-          .catch(error => {
-            console.error('Error updating user profile:', error);
-            ToastAndroid.show('Failed to save user name. Try again!', ToastAndroid.LONG);
-          });
+    dispatch(userRegister({ name, email, password }))
+      .unwrap()
+      .then(() => {
+        ToastAndroid.show('User account created & signed in!', ToastAndroid.LONG);
+        props.navigation.navigate('SignIn');
       })
-      .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          ToastAndroid.show('That email address is already in use!', ToastAndroid.LONG);
-        } else if (error.code === 'auth/invalid-email') {
-          ToastAndroid.show('That email address is invalid!', ToastAndroid.LONG);
-        } else {
-          console.error(error);
-          ToastAndroid.show('Registration failed. Please try again.', ToastAndroid.LONG);
-        }
+      .catch((error:any) => {
+        console.error('Registration failed:', error);
+        ToastAndroid.show(error.message || 'Registration failed. Please try again.', ToastAndroid.LONG);
       });
   };
 
@@ -85,7 +71,7 @@ const SignUpScreen = (props:any) => {
               placeholder="Name"
               placeholderTextColor={'#91919F'}
               value={name}
-              onChangeText={(user) => setName(user)}
+              onChangeText={setName}
             />
             <TextInput
               style={styles.input}
@@ -93,7 +79,7 @@ const SignUpScreen = (props:any) => {
               placeholderTextColor={'#91919F'}
               keyboardType="email-address"
               value={email}
-              onChangeText={(mail) => setEmail(mail)}
+              onChangeText={setEmail}
             />
             <View style={styles.passwordContainer}>
               <TextInput
@@ -104,7 +90,7 @@ const SignUpScreen = (props:any) => {
                 autoCorrect={false}
                 autoCapitalize="none"
                 value={password}
-                onChangeText={(pwd) => setPassword(pwd)}
+                onChangeText={setPassword}
               />
               <TouchableOpacity
                 style={styles.eyeIcon}
@@ -133,7 +119,7 @@ const SignUpScreen = (props:any) => {
               </Text>
             </View>
 
-            <TouchableOpacity style={styles.signUpButton} onPress={userRegister}>
+            <TouchableOpacity style={styles.signUpButton} onPress={handleRegister}>
               <Text style={styles.signUpButtonText}>Sign Up</Text>
             </TouchableOpacity>
             <Text style={styles.orText}>or</Text>

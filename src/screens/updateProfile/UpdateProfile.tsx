@@ -1,20 +1,22 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView, ToastAndroid } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import auth from '@react-native-firebase/auth';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserProfile } from '../../store/slices/authSlice';
 import storage from '@react-native-firebase/storage';
 import { Platform } from 'react-native';
+import { AppDispatch } from '../../store/store';
 
 
-const UpdateProfileScreen = () => {
+const UpdateProfileScreen = (props:any) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const navigation = useNavigation();
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
+
   const user = useSelector((state: any) => state.auth.user);
 
   useEffect(() => {
@@ -26,7 +28,11 @@ const UpdateProfileScreen = () => {
 
   const handleGallery = () => {
     launchImageLibrary({ mediaType: 'photo' }, (response) => {
-      if (response.assets && response.assets.length > 0) {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
         const uri = response.assets[0].uri;
         if (uri) {
           setSelectedFile(uri);
@@ -34,6 +40,7 @@ const UpdateProfileScreen = () => {
       }
     });
   };
+
 
   const uploadImage = async (uri: string) => {
     try {
@@ -76,12 +83,14 @@ const UpdateProfileScreen = () => {
         }
 
         dispatch(updateUserProfile({
-          ...currentUser,
+          userId: currentUser.uid,
           displayName: name,
-          photoURL: imageUrl,
+          imageUrl: imageUrl,
         }));
 
         setSelectedFile(imageUrl);
+        ToastAndroid.show('Profile updated successfully!', ToastAndroid.LONG);
+        props.navigation.navigate('Profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -134,7 +143,8 @@ const UpdateProfileScreen = () => {
             placeholder="Name"
             placeholderTextColor={'#91919F'}
             value={name}
-            onChangeText={() => setName(user)}
+            // onChangeText={() => setName(user)}
+            onChangeText={(text) => setName(text)}
           />
         </View>
       </ScrollView>

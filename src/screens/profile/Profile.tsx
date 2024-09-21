@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import DashedLine from 'react-native-dashed-line';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../../store/slices/authSlice';
+import { logout, fetchUserProfile } from '../../store/slices/authSlice';
+import { ActivityIndicator } from 'react-native';
+import { AppDispatch } from '../../store/store';
 
 interface ProfileScreenProps {
   navigation: any;
@@ -10,8 +12,16 @@ interface ProfileScreenProps {
 
 const ProfileScreen: React.FC<ProfileScreenProps> = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const user = useSelector((state: any) => state.auth.user);
+  const loading = useSelector((state: any) => state.auth.loading);
+  const error = useSelector((state: any) => state.auth.error);
+
+  useEffect(() => {
+    if (user && user.uid) {
+      dispatch(fetchUserProfile(user.uid));
+    }
+  }, [dispatch, user]);
 
   const handleContinueClick = () => {
     dispatch(logout());
@@ -20,26 +30,39 @@ const ProfileScreen: React.FC<ProfileScreenProps> = (props) => {
   };
 
   const userName = user?.displayName || 'Username';
+  const profileImage = user?.photoURL
+    ? { uri: user.photoURL }
+    : require('../../assets/images/profile.png');
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Failed to load user profile: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       {/* Profile Section */}
       <View style={styles.profileContainer}>
         <View style={styles.border}>
-          <Image
-            source={user?.photoURL ? { uri: user.photoURL } : require('../../assets/images/profile.png')}
-            style={styles.profileImage}
-          />
-
+          <Image source={profileImage} style={styles.profileImage} />
         </View>
         <View style={styles.profileDetails}>
           <Text style={styles.usernameLabel}>Username</Text>
           <Text style={styles.username}>{userName}</Text>
         </View>
         <TouchableOpacity style={styles.editButton} onPress={() => props.navigation.navigate('UpdateProfile')}>
-          <Image
-            source={require('../../assets/icons/edit.png')}
-          />
+          <Image source={require('../../assets/icons/edit.png')} />
         </TouchableOpacity>
       </View>
 
@@ -47,9 +70,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = (props) => {
       <View style={styles.optionsContainer}>
         <TouchableOpacity style={styles.optionItem} onPress={() => props.navigation.navigate('UpdateProfile')}>
           <View style={[styles.iconContainer, styles.settingsIconContainer]}>
-            <Image
-              source={require('../../assets/icons/settings.png')}
-            />
+            <Image source={require('../../assets/icons/settings.png')} />
           </View>
           <Text style={styles.optionText}>Settings</Text>
         </TouchableOpacity>
@@ -59,9 +80,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = (props) => {
 
         <TouchableOpacity style={styles.optionItem} onPress={() => props.navigation.navigate('ResetPassword')}>
           <View style={[styles.iconContainer, styles.resetIconContainer]}>
-            <Image
-              source={require('../../assets/icons/warning.png')}
-            />
+            <Image source={require('../../assets/icons/warning.png')} />
           </View>
           <Text style={styles.optionText}>Reset Password</Text>
         </TouchableOpacity>
@@ -72,14 +91,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = (props) => {
 
         <TouchableOpacity style={styles.optionItem} onPress={() => setModalVisible(true)}>
           <View style={[styles.iconContainer, styles.logoutIconContainer]}>
-            <Image
-              source={require('../../assets/icons/logout.png')}
-            />
+            <Image source={require('../../assets/icons/logout.png')} />
           </View>
           <Text style={styles.optionText}>Logout</Text>
         </TouchableOpacity>
       </View>
 
+      {/* Logout Modal */}
       <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -106,7 +124,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = (props) => {
   );
 };
 
+
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F9F9F9',

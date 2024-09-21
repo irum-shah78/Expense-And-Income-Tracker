@@ -1,145 +1,7 @@
-// import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-// import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-
-// interface AuthState {
-//   user: FirebaseAuthTypes.User | null;
-//   isAuthenticated: boolean;
-//   loading: boolean;
-//   error: string | null;
-//   message: string | null;
-//   emailExists: boolean | null;
-// }
-
-// const initialState: AuthState = {
-//   user: null,
-//   isAuthenticated: false,
-//   loading: false,
-//   error: null,
-//   message: null,
-//   emailExists: null,
-// };
-
-// export const checkEmailExists = createAsyncThunk(
-//   'auth/checkEmailExists',
-//   async (email: string, { rejectWithValue }) => {
-//     try {
-//       await auth().fetchSignInMethodsForEmail(email);
-//       return true;
-//     } catch (error: any) {
-//       return rejectWithValue('Email not registered.');
-//     }
-//   }
-// );
-
-// // Reset password
-// export const resetPassword = createAsyncThunk(
-//   'auth/resetPassword',
-//   async (email: string, { rejectWithValue, getState }) => {
-//     const state = getState() as { auth: AuthState };
-//     if (!state.auth.emailExists) {
-//       return rejectWithValue('Email not registered.');
-//     }
-//     try {
-//       await auth().sendPasswordResetEmail(email);
-//       return 'Password reset email sent!';
-//     } catch (error: any) {
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
-
-// export const changePassword = createAsyncThunk(
-//   'auth/changePassword',
-//   async ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }, thunkAPI) => {
-//     try {
-//       const user = auth().currentUser;
-//       const credential = auth.EmailAuthProvider.credential(user?.email!, currentPassword);
-//       await user?.reauthenticateWithCredential(credential);
-//       if (currentPassword === newPassword) {
-//         return thunkAPI.rejectWithValue('New password cannot be the same as the old password.');
-//       }
-
-//       await user?.updatePassword(newPassword);
-
-//       return 'Password updated successfully';
-//     } catch (error: any) {
-//       return thunkAPI.rejectWithValue(error.message);
-//     }
-//   }
-// );
-
-// const authSlice = createSlice({
-//   name: 'auth',
-//   initialState,
-//   reducers: {
-//     login: (state, action: PayloadAction<FirebaseAuthTypes.User>) => {
-//       state.user = action.payload;
-//       state.isAuthenticated = true;
-//       state.error = null;
-//     },
-//     logout: (state) => {
-//       state.user = null;
-//       state.isAuthenticated = false;
-//       state.error = null;
-//     },
-//     clearMessage: (state) => {
-//       state.message = null;
-//     },
-//     clearError: (state) => {
-//       state.error = null;
-//     },
-//     updateUserProfile: (state, action: PayloadAction<FirebaseAuthTypes.User>) => {
-//       state.user = action.payload;
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(checkEmailExists.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(checkEmailExists.fulfilled, (state) => {
-//         state.loading = false;
-//         state.emailExists = true;
-//       })
-//       .addCase(checkEmailExists.rejected, (state, action: PayloadAction<any>) => {
-//         state.loading = false;
-//         state.emailExists = false;
-//         state.error = action.payload;
-//       })
-//       .addCase(resetPassword.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(resetPassword.fulfilled, (state, action: PayloadAction<string>) => {
-//         state.loading = false;
-//         state.message = action.payload;
-//       })
-//       .addCase(resetPassword.rejected, (state, action: PayloadAction<any>) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-//       .addCase(changePassword.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(changePassword.fulfilled, (state, action: PayloadAction<string>) => {
-//         state.loading = false;
-//         state.message = action.payload;
-//       })
-//       .addCase(changePassword.rejected, (state, action: PayloadAction<any>) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       });
-//   },
-// });
-
-// export const { login, logout, clearMessage, clearError, updateUserProfile } = authSlice.actions;
-// export default authSlice.reducer;
-
-
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import { WritableDraft } from 'immer';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 interface AuthState {
@@ -148,7 +10,6 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   message: string | null;
-  emailExists: boolean | null;
 }
 
 const initialState: AuthState = {
@@ -157,21 +18,143 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   message: null,
-  emailExists: null,
 };
 
-// Google Sign-In
-export const signInWithGoogle = createAsyncThunk(
-  'auth/signInWithGoogle',
+export const userRegister = createAsyncThunk(
+  'auth/userRegister',
+  async ({ name, email, password }: { name: string; email: string; password: string }, { rejectWithValue }) => {
+    try {
+      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      await user.updateProfile({ displayName: name });
+
+      await firestore().collection('users').doc(user.uid).set({
+        email,
+        displayName: name,
+      });
+
+      return user;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const googleSignIn = createAsyncThunk(
+  'auth/googleSignIn',
   async (_, { rejectWithValue }) => {
     try {
       await GoogleSignin.hasPlayServices();
       const { idToken } = await GoogleSignin.signIn();
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
       const userCredential = await auth().signInWithCredential(googleCredential);
-      return userCredential.user;
+
+      // Optionally, you can also save user details in Firestore
+      const user = userCredential.user;
+      const userDoc = await firestore().collection('users').doc(user.uid).get();
+
+      if (!userDoc.exists) {
+        await firestore().collection('users').doc(user.uid).set({
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        });
+      }
+
+      return user;
     } catch (error: any) {
-      return rejectWithValue('Google Sign-In failed. Please try again.');
+      return rejectWithValue(error.message || 'Google Sign-In failed');
+    }
+  }
+);
+
+export const storeUserProfile = createAsyncThunk(
+  'auth/storeUserProfile',
+  async ({ userId, email, displayName, imageUrl }: { userId: string; email: string; displayName: string; imageUrl: string }, { rejectWithValue }) => {
+    try {
+      await firestore().collection('users').doc(userId).set({
+        email,
+        displayName,
+        imageUrl,
+      });
+      return { userId, email, displayName, imageUrl };
+    } catch (error: any) {
+      return rejectWithValue('Failed to store user profile.');
+    }
+  }
+);
+
+// Fetch user profile from Firestore
+export const fetchUserProfile = createAsyncThunk(
+  'auth/fetchUserProfile',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const userDoc = await firestore().collection('users').doc(userId).get();
+      return userDoc.data();
+    } catch (error: any) {
+      return rejectWithValue('Failed to fetch user profile.');
+    }
+  }
+);
+
+export const updateUserProfile = createAsyncThunk(
+  'auth/updateUserProfile',
+  async (
+    { userId, displayName, imageUrl }: { userId: string; displayName: string; imageUrl: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const user = auth().currentUser;
+      if (user) {
+        await user.updateProfile({
+          displayName,
+          photoURL: imageUrl,
+        });
+
+        await firestore().collection('users').doc(userId).update({
+          displayName,
+          imageUrl,
+        });
+
+        const userDoc = await firestore().collection('users').doc(userId).get();
+        const updatedUser = userDoc.data();
+
+        return {
+          displayName: updatedUser?.displayName,
+          imageUrl: updatedUser?.imageUrl,
+        };
+      }
+
+      return { displayName, imageUrl };
+    } catch (error: any) {
+      return rejectWithValue('Failed to update user profile.');
+    }
+  }
+);
+
+
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }, { rejectWithValue }) => {
+    try {
+      const user = auth().currentUser;
+      if (!user) { throw new Error('No user is currently signed in.'); }
+
+      const credential = auth.EmailAuthProvider.credential(user.email!, currentPassword);
+
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+
+      // optional
+      await firestore().collection('users').doc(user.uid).update({
+        password: newPassword,
+      });
+
+      return 'Password updated successfully';
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to reset password');
     }
   }
 );
@@ -196,28 +179,110 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    updateUserProfile: (state, action: PayloadAction<FirebaseAuthTypes.User>) => {
-      state.user = action.payload;
-    },
   },
   extraReducers: (builder) => {
+    // Handle storing user profile
     builder
-      // Handle Google sign-in
-      .addCase(signInWithGoogle.pending, (state) => {
+      .addCase(googleSignIn.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(signInWithGoogle.fulfilled, (state, action: PayloadAction<FirebaseAuthTypes.User>) => {
+      .addCase(googleSignIn.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        state.message = 'Google Sign-In successful';
       })
-      .addCase(signInWithGoogle.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(googleSignIn.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
+      })
+      .addCase(storeUserProfile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(storeUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = 'Profile stored successfully';
+        console.error(action.payload);
+      })
+      .addCase(storeUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Fetch user profile
+    builder
+      .addCase(fetchUserProfile.pending, (state) => {
+        state.loading = true;
+      })
+      // .addCase(fetchUserProfile.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.user = { ...state.user, ...action.payload };
+      // })
+
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+
+        // Ensure that action.payload has the expected shape
+        const userProfile = action.payload as {
+          displayName?: string | null; // This indicates it can be undefined
+          email?: string | null; // Same here
+          // Include other properties as needed
+        };
+
+        state.user = {
+          ...state.user,
+          displayName: userProfile.displayName ?? null, // Default to null if undefined
+          email: userProfile.email ?? null, // Similarly handle other properties
+          // Handle other properties accordingly
+        } as WritableDraft<FirebaseAuthTypes.User>; // Assert the type if needed
+      })
+
+
+      .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Update user profile
+    builder
+      .addCase(updateUserProfile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.user) {
+          state.user.displayName = action.payload.displayName;
+          state.user.photoURL = action.payload.imageUrl;
+        }
+        state.message = 'Profile updated successfully';
+      })
+      // .addCase(updateUserProfile.rejected, (state, action) => {
+      //   state.loading = false;
+      //   state.error = action.payload as string;
+      // })
+      // .addCase(updateUserProfile.fulfilled, (state, action) => {
+      //   state.user = {
+      //     ...state.user,
+      //     displayName: action.payload.displayName,
+      //     imageUrl: action.payload.imageUrl,
+      //   };
+      // })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        console.error(action.payload);
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { login, logout, clearMessage, clearError, updateUserProfile } = authSlice.actions;
+export const { login, logout, clearMessage, clearError } = authSlice.actions;
 export default authSlice.reducer;

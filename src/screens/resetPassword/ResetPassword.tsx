@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator, ToastAndroid } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
-import { changePassword } from '../../store/slices/authSlice';
+import { resetPassword } from '../../store/slices/authSlice';
 import { useNavigation } from '@react-navigation/native';
 
-const ResetPasswordScreen = () => {
+const ResetPasswordScreen = (props:any) => {
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [retypeNewPassword, setRetypeNewPassword] = useState<string>('');
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, message } = useSelector((state: RootState) => state.auth);
+  const { loading} = useSelector((state: RootState) => state.auth);
   const navigation = useNavigation();
 
   const handleChangePassword = () => {
@@ -24,9 +24,16 @@ const ResetPasswordScreen = () => {
       return;
     }
 
-    dispatch(changePassword({ currentPassword, newPassword }) as any);
+    dispatch(resetPassword({ currentPassword, newPassword }) as any)
+    .unwrap()
+    .then(() => {
+      ToastAndroid.show('Password updated successfully!.', ToastAndroid.LONG);
+      props.navigation.navigate('Profile');
+    })
+    .catch((error:any) => {
+      ToastAndroid.show(`Error updating password: ${error}`, ToastAndroid.LONG);
+    });
   };
-
 
   return (
     <View style={styles.container}>
@@ -77,9 +84,6 @@ const ResetPasswordScreen = () => {
             onChangeText={(pwd) => setRetypeNewPassword(pwd)}
           />
         </View>
-
-        {error && <Text style={styles.errorText}>{error}</Text>}
-        {message && <Text style={styles.successText}>{message}</Text>}
       </ScrollView>
 
       <TouchableOpacity
@@ -92,6 +96,7 @@ const ResetPasswordScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
