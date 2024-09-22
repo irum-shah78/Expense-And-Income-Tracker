@@ -38,7 +38,7 @@ export const fetchTransactions = createAsyncThunk(
       })) as Transaction[];
 
       return transactions;
-    } catch (error:any) {
+    } catch (error: any) {
       return rejectWithValue(error.message);
     }
   }

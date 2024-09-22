@@ -10,7 +10,7 @@ import { Platform } from 'react-native';
 import { AppDispatch } from '../../store/store';
 
 
-const UpdateProfileScreen = (props:any) => {
+const UpdateProfileScreen = (props: any) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);

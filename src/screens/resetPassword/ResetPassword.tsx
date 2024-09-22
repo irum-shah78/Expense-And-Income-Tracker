@@ -5,12 +5,12 @@ import { AppDispatch, RootState } from '../../store/store';
 import { resetPassword } from '../../store/slices/authSlice';
 import { useNavigation } from '@react-navigation/native';
 
-const ResetPasswordScreen = (props:any) => {
+const ResetPasswordScreen = (props: any) => {
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [retypeNewPassword, setRetypeNewPassword] = useState<string>('');
   const dispatch = useDispatch<AppDispatch>();
-  const { loading} = useSelector((state: RootState) => state.auth);
+  const { loading } = useSelector((state: RootState) => state.auth);
   const navigation = useNavigation();
 
   const handleChangePassword = () => {
@@ -25,14 +25,14 @@ const ResetPasswordScreen = (props:any) => {
     }
 
     dispatch(resetPassword({ currentPassword, newPassword }) as any)
-    .unwrap()
-    .then(() => {
-      ToastAndroid.show('Password updated successfully!.', ToastAndroid.LONG);
-      props.navigation.navigate('Profile');
-    })
-    .catch((error:any) => {
-      ToastAndroid.show(`Error updating password: ${error}`, ToastAndroid.LONG);
-    });
+      .unwrap()
+      .then(() => {
+        ToastAndroid.show('Password updated successfully!.', ToastAndroid.LONG);
+        props.navigation.navigate('Profile');
+      })
+      .catch((error: any) => {
+        ToastAndroid.show(`Error updating password: ${error}`, ToastAndroid.LONG);
+      });
   };
 
   return (

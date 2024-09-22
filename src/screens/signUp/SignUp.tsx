@@ -1,15 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ToastAndroid,
-  SafeAreaView,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ToastAndroid, SafeAreaView, ScrollView } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import { useDispatch } from 'react-redux';
 import { userRegister } from '../../store/slices/authSlice';
@@ -42,7 +32,7 @@ const SignUpScreen = (props: any) => {
         ToastAndroid.show('User account created & signed in!', ToastAndroid.LONG);
         props.navigation.navigate('SignIn');
       })
-      .catch((error:any) => {
+      .catch((error: any) => {
         console.error('Registration failed:', error);
         ToastAndroid.show(error.message || 'Registration failed. Please try again.', ToastAndroid.LONG);
       });
