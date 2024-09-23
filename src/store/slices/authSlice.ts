@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import { WritableDraft } from 'immer';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 interface AuthState {
@@ -84,7 +83,6 @@ export const storeUserProfile = createAsyncThunk(
   }
 );
 
-// Fetch user profile from Firestore
 export const fetchUserProfile = createAsyncThunk(
   'auth/fetchUserProfile',
   async (userId: string, { rejectWithValue }) => {
@@ -132,7 +130,6 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
-
 export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
   async ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }, { rejectWithValue }) => {
@@ -153,6 +150,30 @@ export const resetPassword = createAsyncThunk(
       return 'Password updated successfully';
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to reset password');
+    }
+  }
+);
+
+export const forgetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      await auth().sendPasswordResetEmail(email);
+      return 'Password reset email sent successfully';
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to send password reset email');
+    }
+  }
+);
+
+export const checkEmailExists = createAsyncThunk(
+  'auth/checkEmailExists',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const userDocs = await firestore().collection('users').where('email', '==', email).get();
+      return userDocs.empty ? false : true;
+    } catch (error: any) {
+      return rejectWithValue('Failed to check email existence.');
     }
   }
 );
@@ -179,7 +200,6 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Handle storing user profile
     builder
       .addCase(googleSignIn.pending, (state) => {
         state.loading = true;
@@ -212,36 +232,15 @@ const authSlice = createSlice({
       .addCase(fetchUserProfile.pending, (state) => {
         state.loading = true;
       })
-      // .addCase(fetchUserProfile.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.user = { ...state.user, ...action.payload };
-      // })
-
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.loading = false;
-
-        // Ensure that action.payload has the expected shape
-        const userProfile = action.payload as {
-          displayName?: string | null; // This indicates it can be undefined
-          email?: string | null; // Same here
-          // Include other properties as needed
-        };
-
-        state.user = {
-          ...state.user,
-          displayName: userProfile.displayName ?? null, // Default to null if undefined
-          email: userProfile.email ?? null, // Similarly handle other properties
-          // Handle other properties accordingly
-        } as WritableDraft<FirebaseAuthTypes.User>; // Assert the type if needed
+        state.user = { ...state.user, ...action.payload };
       })
-
-
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
 
-    // Update user profile
     builder
       .addCase(updateUserProfile.pending, (state) => {
         state.loading = true;
@@ -254,17 +253,6 @@ const authSlice = createSlice({
         }
         state.message = 'Profile updated successfully';
       })
-      // .addCase(updateUserProfile.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload as string;
-      // })
-      // .addCase(updateUserProfile.fulfilled, (state, action) => {
-      //   state.user = {
-      //     ...state.user,
-      //     displayName: action.payload.displayName,
-      //     imageUrl: action.payload.imageUrl,
-      //   };
-      // })
       .addCase(updateUserProfile.rejected, (state, action) => {
         console.error(action.payload);
       })

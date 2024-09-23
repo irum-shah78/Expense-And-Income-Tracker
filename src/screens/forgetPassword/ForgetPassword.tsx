@@ -1,3 +1,51 @@
+// import React, { useState } from 'react';
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   StyleSheet,
+//   TouchableOpacity,
+//   SafeAreaView,
+//   ToastAndroid,
+//   ActivityIndicator,
+//   Image,
+// } from 'react-native';
+// import { useAppDispatch, useAppSelector } from '../../../src/hooks/index';
+// import { resetPassword, checkEmailExists } from '../../store/slices/authSlice';
+// import { useNavigation } from '@react-navigation/native';
+
+// const ForgotPasswordScreen = () => {
+//   const [email, setEmail] = useState<string>('');
+//   const dispatch = useAppDispatch();
+//   const { loading, error, emailExists } = useAppSelector((state) => state.auth);
+//   const navigation = useNavigation();
+
+//   const handleSendEmail = async () => {
+//     if (!email) {
+//       ToastAndroid.show('Please enter your email.', ToastAndroid.SHORT);
+//       return;
+//     }
+
+//     try {
+//       await dispatch(checkEmailExists(email)).unwrap();
+//       if (!emailExists) {
+//         ToastAndroid.show('Email not registered.', ToastAndroid.SHORT);
+//         return;
+//       }
+//       dispatch(resetPassword(email))
+//         .unwrap()
+//         .then((message) => {
+//           ToastAndroid.show(message, ToastAndroid.LONG);
+//         })
+//         .catch((errorMessage) => {
+//           ToastAndroid.show(errorMessage, ToastAndroid.LONG);
+//         });
+
+//     } catch (err) {
+//       ToastAndroid.show('Error checking email existence.', ToastAndroid.LONG);
+//     }
+//   };
+
 import React, { useState } from 'react';
 import {
   View,
@@ -11,13 +59,13 @@ import {
   Image,
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../../src/hooks/index';
-import { resetPassword, checkEmailExists } from '../../store/slices/authSlice';
+import { forgetPassword, checkEmailExists } from '../../store/slices/authSlice';
 import { useNavigation } from '@react-navigation/native';
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState<string>('');
   const dispatch = useAppDispatch();
-  const { loading, error, emailExists } = useAppSelector((state) => state.auth);
+  const { loading, error } = useAppSelector((state) => state.auth);
   const navigation = useNavigation();
 
   const handleSendEmail = async () => {
@@ -26,24 +74,23 @@ const ForgotPasswordScreen = () => {
       return;
     }
 
-    try {
-      await dispatch(checkEmailExists(email)).unwrap();
-      if (!emailExists) {
-        ToastAndroid.show('Email not registered.', ToastAndroid.SHORT);
-        return;
-      }
-      dispatch(resetPassword(email))
-        .unwrap()
-        .then((message) => {
-          ToastAndroid.show(message, ToastAndroid.LONG);
-        })
-        .catch((errorMessage) => {
-          ToastAndroid.show(errorMessage, ToastAndroid.LONG);
-        });
-
-    } catch (err) {
-      ToastAndroid.show('Error checking email existence.', ToastAndroid.LONG);
+    // Check if email exists
+    const emailExists = await dispatch(checkEmailExists(email)).unwrap();
+    if (!emailExists) {
+      ToastAndroid.show('Email not registered.', ToastAndroid.SHORT);
+      return;
     }
+
+    // If email exists, send the reset password email
+    dispatch(forgetPassword(email))
+      .unwrap()
+      .then((message) => {
+        ToastAndroid.show(message, ToastAndroid.LONG);
+        navigation.goBack(); // Optionally navigate back after success
+      })
+      .catch((errorMessage) => {
+        ToastAndroid.show(errorMessage, ToastAndroid.LONG);
+      });
   };
 
   return (
@@ -160,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-    loadingContainer: {
+  loadingContainer: {
     marginVertical: 20,
   },
   errorText: {

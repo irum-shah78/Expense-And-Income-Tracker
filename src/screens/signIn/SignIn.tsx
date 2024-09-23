@@ -110,6 +110,9 @@ const SignInScreen = (props: any) => {
             <TouchableOpacity style={styles.signInButton} onPress={userSignIn}>
               <Text style={styles.signInButtonText}>Login</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => props.navigation.navigate('ForgetPassword')}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
 
             <Text style={styles.orText}>or</Text>
             <TouchableOpacity style={styles.googleButton} onPress={onGoogleButtonPress}>

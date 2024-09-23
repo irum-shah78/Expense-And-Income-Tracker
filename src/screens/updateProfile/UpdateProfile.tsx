@@ -16,7 +16,6 @@ const UpdateProfileScreen = (props: any) => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const navigation = useNavigation();
   const dispatch: AppDispatch = useDispatch();
-
   const user = useSelector((state: any) => state.auth.user);
 
   useEffect(() => {
@@ -40,7 +39,6 @@ const UpdateProfileScreen = (props: any) => {
       }
     });
   };
-
 
   const uploadImage = async (uri: string) => {
     try {
@@ -72,6 +70,7 @@ const UpdateProfileScreen = (props: any) => {
       const currentUser = auth().currentUser;
       if (currentUser) {
         await currentUser.updateProfile({ displayName: name });
+
         if (email !== currentUser.email) {
           await currentUser.updateEmail(email);
         }
@@ -88,7 +87,6 @@ const UpdateProfileScreen = (props: any) => {
           imageUrl: imageUrl,
         }));
 
-        setSelectedFile(imageUrl);
         ToastAndroid.show('Profile updated successfully!', ToastAndroid.LONG);
         props.navigation.navigate('Profile');
       }
@@ -123,7 +121,6 @@ const UpdateProfileScreen = (props: any) => {
           </TouchableOpacity>
         </View>
 
-        {/* Form Fields */}
         <View style={styles.inputContainer}>
           <Text style={styles.Text}>Email</Text>
           <TextInput
@@ -143,7 +140,6 @@ const UpdateProfileScreen = (props: any) => {
             placeholder="Name"
             placeholderTextColor={'#91919F'}
             value={name}
-            // onChangeText={() => setName(user)}
             onChangeText={(text) => setName(text)}
           />
         </View>
