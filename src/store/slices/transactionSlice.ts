@@ -155,22 +155,41 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
 
+// interface Transaction {
+//   id?: string;
+//   amount: number;
+//   description: string;
+//   category: string;
+//   createdAt: Date;
+//   type: 'expense' | 'income';
+//   attachments?: string[];
+// }
 interface Transaction {
   id?: string;
   amount: number;
   description: string;
   category: string;
   createdAt: Date;
+  type: 'expense' | 'income';
+  attachments?: string[];
+  walletId?: string;  // Add this line to associate a transaction with a wallet
 }
+
 
 interface Category {
   id?: string;
   name: string;
 }
 
+interface Wallet {
+  id: string;
+  name: string;
+}
+
 interface TransactionState {
   transactions: Transaction[];
-  categories: Category[]; // New field to store categories
+  categories: Category[];
+  wallets: Wallet[];
   loading: boolean;
   error: string | null;
   message: string | null;
@@ -178,13 +197,13 @@ interface TransactionState {
 
 const initialState: TransactionState = {
   transactions: [],
-  categories: [], // Initialize categories as empty array
+  categories: [],
+  wallets:[],
   loading: false,
   error: null,
   message: null,
 };
 
-// Async thunk to fetch transactions
 export const fetchTransactions = createAsyncThunk(
   'transactions/fetchTransactions',
   async (userId: string, { rejectWithValue }) => {
@@ -201,7 +220,6 @@ export const fetchTransactions = createAsyncThunk(
   }
 );
 
-// Async thunk to fetch categories
 export const fetchCategories = createAsyncThunk(
   'transactions/fetchCategories',
   async (_, { rejectWithValue }) => {
@@ -218,7 +236,6 @@ export const fetchCategories = createAsyncThunk(
   }
 );
 
-// Async thunk to add a category
 export const addCategory = createAsyncThunk(
   'transactions/addCategory',
   async (categoryName: string, { rejectWithValue }) => {
@@ -233,10 +250,24 @@ export const addCategory = createAsyncThunk(
   }
 );
 
-// Async thunk to add a transaction
+// export const addTransaction = createAsyncThunk(
+//   'transactions/addTransaction',
+//   async (transaction: Transaction & { userId: string }, { rejectWithValue }) => {
+//     try {
+//       const docRef = await firestore().collection('transactions').add({
+//         ...transaction,
+//         createdAt: new Date(),
+//       });
+//       return { id: docRef.id, ...transaction };
+//     } catch (error: any) {
+//       return rejectWithValue('Failed to add transaction.');
+//     }
+//   }
+// );
+
 export const addTransaction = createAsyncThunk(
   'transactions/addTransaction',
-  async (transaction: Transaction & { userId: string }, { rejectWithValue }) => {
+  async (transaction: Transaction & { userId: string; walletId: string }, { rejectWithValue }) => {
     try {
       const docRef = await firestore().collection('transactions').add({
         ...transaction,
@@ -249,7 +280,7 @@ export const addTransaction = createAsyncThunk(
   }
 );
 
-// Async thunk to update a transaction
+
 export const updateTransaction = createAsyncThunk(
   'transactions/updateTransaction',
   async ({ id, transaction }: { id: string; transaction: Transaction }, { rejectWithValue }) => {
@@ -262,7 +293,6 @@ export const updateTransaction = createAsyncThunk(
   }
 );
 
-// Async thunk to delete a transaction
 export const deleteTransaction = createAsyncThunk(
   'transactions/deleteTransaction',
   async (id: string, { rejectWithValue }) => {
@@ -274,6 +304,59 @@ export const deleteTransaction = createAsyncThunk(
     }
   }
 );
+
+export const fetchTransactionsByUserId = createAsyncThunk(
+  'transaction/fetchTransactionsByUserId',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const snapshot = await firestore()
+        .collection('transactions')
+        .where('userId', '==', userId)
+        .get();
+
+      const transactions = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return transactions;
+    } catch (error: any) {
+      return rejectWithValue('Failed to fetch transactions.');
+    }
+  }
+);
+
+export const fetchWallets = createAsyncThunk(
+  'transactions/fetchWallets',
+  async (_, { rejectWithValue }) => {
+    try {
+      const querySnapshot = await firestore().collection('wallets').get();
+      const wallets: Wallet[] = [];
+      querySnapshot.forEach(doc => {
+        wallets.push({ id: doc.id, ...doc.data() } as Wallet);
+      });
+      return wallets;
+    } catch (error: any) {
+      return rejectWithValue('Failed to fetch wallets.');
+    }
+  }
+);
+
+// Async thunk to add a new wallet
+export const addWallet = createAsyncThunk(
+  'transactions/addWallet',
+  async (walletName: string, { rejectWithValue }) => {
+    try {
+      const docRef = await firestore().collection('wallets').add({
+        name: walletName,
+      });
+      return { id: docRef.id, name: walletName };
+    } catch (error: any) {
+      return rejectWithValue('Failed to add wallet.');
+    }
+  }
+);
+
 
 const transactionSlice = createSlice({
   name: 'transactions',
@@ -339,33 +422,54 @@ const transactionSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // Categories
-      .addCase(fetchCategories.pending, (state) => {
+      .addCase(fetchTransactionsByUserId.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(fetchCategories.fulfilled, (state, action: PayloadAction<Category[]>) => {
+      // .addCase(fetchTransactionsByUserId.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.transactions = action.payload;
+      // })
+      .addCase(fetchTransactionsByUserId.fulfilled, (state, action) => {
         state.loading = false;
-        state.categories = action.payload;
+        state.transactions = action.payload.map((transaction: any) => ({
+          id: transaction.id,
+          amount: transaction.amount || 0,  // Default to 0 if not provided
+          description: transaction.description || '',
+          category: transaction.category || 'Uncategorized',
+          createdAt: new Date(transaction.createdAt) || new Date(),
+          type: transaction.type || 'expense' || 'income', // Default to 'expense'
+        }));
       })
-      .addCase(fetchCategories.rejected, (state, action) => {
+      .addCase(fetchTransactionsByUserId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(addCategory.pending, (state) => {
+      .addCase(fetchWallets.pending, (state) => {
         state.loading = true;
       })
-      .addCase(addCategory.fulfilled, (state, action: PayloadAction<Category>) => {
+      .addCase(fetchWallets.fulfilled, (state, action: PayloadAction<Wallet[]>) => {
         state.loading = false;
-        state.categories.push(action.payload);
-        state.message = 'Category added successfully';
+        state.wallets = action.payload;
       })
-      .addCase(addCategory.rejected, (state, action) => {
+      .addCase(fetchWallets.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Add wallet
+      .addCase(addWallet.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addWallet.fulfilled, (state, action: PayloadAction<Wallet>) => {
+        state.loading = false;
+        state.wallets.push(action.payload);
+        state.message = 'Wallet added successfully';
+      })
+      .addCase(addWallet.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
   },
 });
-
 export const { clearMessage, clearError } = transactionSlice.actions;
 export default transactionSlice.reducer;

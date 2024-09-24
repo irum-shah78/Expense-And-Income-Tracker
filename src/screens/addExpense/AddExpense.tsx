@@ -487,325 +487,6 @@
 
 
 
-
-// import React, { useState } from 'react';
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   Image,
-//   Modal,
-//   PermissionsAndroid,
-//   Platform,
-// } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
-// import { launchCamera, launchImageLibrary, Asset } from 'react-native-image-picker';
-// import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
-// import { addTransaction, clearMessage, clearError } from '../../store/slices/transactionSlice';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { AppDispatch, RootState } from '../../store/store';
-// import { ScrollView } from 'react-native-gesture-handler';
-
-// const AddExpense = () => {
-//   const [selectedFile, setSelectedFile] = useState<Asset | DocumentPickerResponse | null>(null);
-//   const navigation = useNavigation();
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
-//   const [selectedOption, setSelectedOption] = useState<string>('Category');
-//   const [selectedWallet, setSelectedWallet] = useState<string>('Wallet');
-//   const [walletDropdownVisible, setWalletDropdownVisible] = useState<boolean>(false);
-//   const [isModalVisible, setIsModalVisible] = useState(false);
-
-//   const [customCategory, setCustomCategory] = useState<string>('');
-//   const [categories, setCategories] = useState<string[]>([]);
-
-
-//   const [amount, setAmount] = useState('');
-//   const [description, setDescription] = useState('');
-//   const dispatch: AppDispatch = useDispatch();
-//   const { loading, message, error } = useSelector((state: RootState) => state.transaction);
-
-//   const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
-
-//   const toggleWalletDropdown = () => setWalletDropdownVisible(!walletDropdownVisible);
-//   const handleWalletSelect = (option: string) => {
-//     setSelectedWallet(option);
-//     setWalletDropdownVisible(false);
-//   };
-
-//   const textColor = (selected: string) => (selected === 'Category' || selected === 'Wallet' ? '#91919F' : '#000');
-//   const requestCameraPermission = async () => {
-//     if (Platform.OS === 'android') {
-//       try {
-//         const granted = await PermissionsAndroid.request(
-//           PermissionsAndroid.PERMISSIONS.CAMERA,
-//           {
-//             title: 'Camera Permission',
-//             message: 'This app needs camera permission to take pictures.',
-//             buttonNeutral: 'Ask Me Later',
-//             buttonNegative: 'Cancel',
-//             buttonPositive: 'OK',
-//           }
-//         );
-
-//         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-//           return true;
-//         } else {
-//           console.log('Camera permission denied');
-//           return false;
-//         }
-//       } catch (err) {
-//         console.warn(err);
-//         return false;
-//       }
-//     }
-//     return true;
-//   };
-
-//   const handleCamera = async () => {
-//     const hasPermission = await requestCameraPermission();
-//     if (hasPermission) {
-//       launchCamera(
-//         {
-//           mediaType: 'photo',
-//           saveToPhotos: true,
-//           cameraType: 'back',
-//         },
-//         (response) => {
-//           if (response.didCancel) {
-//             console.log('User cancelled camera picker');
-//           } else if (response.errorCode) {
-//             console.log('Camera Error: ', response.errorMessage);
-//           } else if (response.assets && response.assets.length > 0) {
-//             console.log('Camera response assets: ', response.assets);
-//             setSelectedFile(response.assets[0]);
-//           }
-//         }
-//       );
-//     } else {
-//       console.log('Camera permission denied');
-//     }
-//   };
-
-//   const handleGallery = () => {
-//     launchImageLibrary({ mediaType: 'photo' }, (response) => {
-//       if (response.assets && response.assets.length > 0) {
-//         setSelectedFile(response.assets[0]);
-//       }
-//     });
-//   };
-
-//   const handleDocument = async () => {
-//     try {
-//       const result = await DocumentPicker.pick({ type: [DocumentPicker.types.allFiles] });
-//       setSelectedFile(result[0]);
-//     } catch (err) {
-//       if (!DocumentPicker.isCancel(err)) {
-//         console.log('Unknown Error: ', err);
-//       }
-//     }
-//   };
-
-//   const removeSelectedFile = () => setSelectedFile(null);
-
-//   const handleContinueClick = () => {
-//     const transaction = {
-//       amount: parseFloat(amount),
-//       description,
-//       category: selectedOption === 'Add New Category' ? customCategory : selectedOption,
-//       createdAt: new Date(),
-//       userId: 'User ID', // Replace with actual user ID
-//     };
-
-//     dispatch(addTransaction(transaction))
-//       .unwrap()
-//       .then(() => {
-//         if (customCategory && !categories.includes(customCategory)) {
-//           setCategories([...categories, customCategory]); // Add new category to local state
-//         }
-//         setIsModalVisible(true);
-//         setAmount('');
-//         setDescription('');
-//         setSelectedFile(null);
-//         setCustomCategory(''); // Clear custom category input
-//       })
-//       .catch(() => {
-//         // Handle error (if needed)
-//       });
-//   };
-//   const handleCloseModal = () => {
-//     setIsModalVisible(false);
-//     dispatch(clearMessage());
-//     dispatch(clearError());
-//     navigation.goBack();
-//   };
-
-
-//   const handleSelect = (option: string) => {
-//     if (option === 'Add New Category') {
-//       setSelectedOption(option);
-//       setCustomCategory(''); // Clear the custom category input
-//     } else {
-//       setSelectedOption(option);
-//       setCustomCategory(''); // Clear custom input when selecting existing category
-//     }
-//     setDropdownVisible(false);
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <View style={styles.header}>
-//         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-//           <Image source={require('../../../src/assets/icons/arrowleft.png')} style={styles.backIcon} />
-//         </TouchableOpacity>
-//         <Text style={styles.headerTitle}>Expense</Text>
-//       </View>
-//       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-//         <View style={styles.amountContainer}>
-//           <Text style={styles.amountLabel}>How much?</Text>
-//           {/* <Text style={styles.amountValue}>$0</Text> */}
-//           <TextInput
-//             style={styles.amountValue}
-//             value={amount}
-//             onChangeText={setAmount}
-//             placeholder="$0"
-//             keyboardType="numeric"
-//           />
-//         </View>
-//       </ScrollView>
-
-//       <View style={styles.inputContainer}>
-
-//         {/* <TouchableOpacity style={styles.inputField} onPress={toggleDropdown}>
-//           <Text style={[styles.placeholderText, { color: textColor(selectedOption) }]}>{selectedOption}</Text>
-//           <Image source={require('../../../src/assets/icons/arrow-down2.png')} />
-//         </TouchableOpacity>
-//         {dropdownVisible && (
-//           <View style={styles.dropdown}>
-//             {['Option 1', 'Option 2', 'Option 3'].map((option) => (
-//               <TouchableOpacity key={option} style={styles.option} onPress={() => handleSelect(option)}>
-//                 <Text style={styles.dropText}>{option}</Text>
-//               </TouchableOpacity>
-//             ))}
-//           </View>
-//         )} */}
-
-//         <TouchableOpacity style={styles.inputField} onPress={toggleDropdown}>
-//           <Text style={[styles.placeholderText, { color: textColor(selectedOption) }]}>{selectedOption}</Text>
-//           <Image source={require('../../../src/assets/icons/arrow-down2.png')} />
-//         </TouchableOpacity>
-//         {dropdownVisible && (
-//           <View style={styles.dropdown}>
-//             {categories.map((category) => (
-//               <TouchableOpacity key={category} style={styles.option} onPress={() => handleSelect(category)}>
-//                 <Text style={styles.dropText}>{category}</Text>
-//               </TouchableOpacity>
-//             ))}
-//             <TouchableOpacity style={styles.option} onPress={() => handleSelect('Add New Category')}>
-//               <Text style={styles.dropText}>Add New Category</Text>
-//             </TouchableOpacity>
-//           </View>
-//         )}
-
-//         {selectedOption === 'Add New Category' && (
-//           <TextInput
-//             style={styles.inputField}
-//             placeholder="Enter category name"
-//             placeholderTextColor="#91919F"
-//             value={customCategory}
-//             onChangeText={setCustomCategory}
-//           />
-//         )}
-
-//         <TextInput style={styles.inputField} placeholder="Description" placeholderTextColor="#91919F" value={description} />
-
-//         <TouchableOpacity style={styles.inputField} onPress={toggleWalletDropdown}>
-//           <Text style={[styles.placeholderText, { color: textColor(selectedWallet) }]}>{selectedWallet}</Text>
-//           <Image source={require('../../../src/assets/icons/arrow-down2.png')} />
-//         </TouchableOpacity>
-//         {walletDropdownVisible && (
-//           <View style={styles.dropdown2}>
-//             {['PayPal', 'Credit Card', 'Bank Transfer'].map((option) => (
-//               <TouchableOpacity key={option} style={styles.option} onPress={() => handleWalletSelect(option)}>
-//                 <Text style={styles.placeholderText}>{option}</Text>
-//               </TouchableOpacity>
-//             ))}
-//           </View>
-//         )}
-
-//         {selectedFile && (
-//           <View style={styles.selectedFileContainer}>
-//             {selectedFile.uri && <Image source={{ uri: selectedFile.uri }} style={styles.selectedFileImage} />}
-//             <TouchableOpacity style={styles.removeButton} onPress={removeSelectedFile}>
-//               <Image source={require('../../../src/assets/icons/close.png')} style={styles.removeIcon} />
-//             </TouchableOpacity>
-//           </View>
-//         )}
-
-//         <TouchableOpacity style={styles.attachmentButton} onPress={() => setModalVisible(true)}>
-//           <Image source={require('../../../src/assets/icons/attachment.png')} />
-//           <Text style={styles.attachmentText}>Add attachment</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       {!modalVisible && (
-//         <View style={styles.whiteBackground}>
-//           <TouchableOpacity style={styles.continueButton} onPress={handleContinueClick} disabled={loading}>
-//             <Text style={styles.continueButtonText}>Continue</Text>
-//           </TouchableOpacity>
-//         </View>
-//       )}
-
-//       <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-//         <View style={styles.modalContainer}>
-//           <View style={styles.modalContent}>
-//             <View style={styles.dragLineContainer}>
-//               <Image source={require('../../../src/assets/icons/Line-5.png')} style={styles.dragLine} />
-//             </View>
-
-//             <View style={styles.optionsContainer}>
-//               <TouchableOpacity style={styles.optionButton1} onPress={handleCamera}>
-//                 <Image source={require('../../../src/assets/icons/camera.png')} style={styles.optionIcon} />
-//                 <Text style={styles.optionText}>Camera</Text>
-//               </TouchableOpacity>
-
-//               <TouchableOpacity style={styles.optionButton2} onPress={handleGallery}>
-//                 <Image source={require('../../../src/assets/icons/gallery.png')} style={styles.optionIcon} />
-//                 <Text style={styles.optionText}>Image</Text>
-//               </TouchableOpacity>
-
-//               <TouchableOpacity style={styles.optionButton3} onPress={handleDocument}>
-//                 <Image source={require('../../../src/assets/icons/file.png')} style={styles.optionIcon} />
-//                 <Text style={styles.optionText}>Document</Text>
-//               </TouchableOpacity>
-//             </View>
-//           </View>
-//         </View>
-//       </Modal>
-
-//       <Modal
-//         animationType="slide"
-//         transparent={true}
-//         visible={isModalVisible}
-//         onRequestClose={handleCloseModal}
-//       >
-//         <View style={styles.modalOverlay}>
-//           <View style={styles.modalContainer2}>
-//             <View>
-//               <Image source={require('../../assets/icons/success.png')} />
-//             </View>
-//             {/* <Text style={styles.successMessage}>Transaction has been successfully added</Text> */}
-//             <Text style={styles.successMessage}>{message || 'Transaction has been successfully added'}</Text>
-//           </View>
-//         </View>
-//         {error && <Text>{error}</Text>}
-//       </Modal>
-//     </View>
-//   );
-// };
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -821,7 +502,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { launchCamera, launchImageLibrary, Asset } from 'react-native-image-picker';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
-import { addTransaction, fetchCategories, clearMessage, clearError } from '../../store/slices/transactionSlice';
+import { addTransaction, fetchCategories, clearMessage, clearError, addWallet, fetchWallets } from '../../store/slices/transactionSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -836,24 +517,92 @@ const AddExpense = () => {
   const [walletDropdownVisible, setWalletDropdownVisible] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [customCategory, setCustomCategory] = useState<string>('');
-
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const dispatch: AppDispatch = useDispatch();
   const { loading, message, error, categories } = useSelector((state: RootState) => state.transaction);
+  // const [wallets, setWallets] = useState<string[]>([]);
+  const [newWallet, setNewWallet] = useState('');
+  const [isAddingWallet, setIsAddingWallet] = useState(false);
+  const [transactionType, _setTransactionType] = useState<string>('Expense');
+  const user = useSelector((state: RootState) => state.auth.user);
+  const userId = user?.uid;
+
+  const wallets = useSelector((state: RootState) => state.transaction.wallets);
+  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
+
+
 
   useEffect(() => {
-    // Fetch existing categories when the component mounts
     dispatch(fetchCategories());
   }, [dispatch]);
 
   const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
 
-  const toggleWalletDropdown = () => setWalletDropdownVisible(!walletDropdownVisible);
-  const handleWalletSelect = (option: string) => {
-    setSelectedWallet(option);
-    setWalletDropdownVisible(false);
+  useEffect(() => {
+    dispatch(fetchWallets());
+  }, [dispatch]);
+
+  const toggleWalletDropdown = () => {
+    setWalletDropdownVisible(!walletDropdownVisible);
   };
+
+  // const handleWalletSelect = (wallet: string) => {
+  //   if (wallet === 'Add New Wallet') {
+  //     setIsAddingWallet(true);
+  //   } else {
+  //     setSelectedWallet(wallet);
+  //     setIsAddingWallet(false);
+  //   }
+  //   setWalletDropdownVisible(false); // Close dropdown
+  // };
+
+  // const handleWalletSelect = (wallet: { id: string; name: string }) => {
+  //   if (wallet.name === 'Add New Wallet') {
+  //     setIsAddingWallet(true);
+  //   } else {
+  //     setSelectedWallet(wallet.id); // Store the wallet name
+  //     setSelectedWalletId(wallet.name); // Store the wallet ID
+  //     setIsAddingWallet(false);
+  //   }
+  //   setWalletDropdownVisible(false); // Close dropdown
+  // };
+
+
+  // const handleWalletSelect = (wallet: { id: string; name: string }) => {
+  //   if (wallet.name === 'Add New Wallet') {
+  //     setIsAddingWallet(true);
+  //   } else {
+  //     setSelectedWallet(wallet.name);
+  //     setSelectedWalletId(wallet.id); // Use wallet.id here
+  //     setIsAddingWallet(false);
+  //   }
+  //   setWalletDropdownVisible(false);
+  // };
+
+  const handleWalletSelect = (wallet: { id: string; name: string }) => {
+    if (wallet.id === 'new') {
+      setIsAddingWallet(true);
+    } else {
+      setSelectedWallet(wallet.id); // Store the wallet ID
+      setSelectedWalletId(wallet.name); // Store the wallet name
+      setIsAddingWallet(false);
+    }
+
+    setWalletDropdownVisible(false); // Close dropdown
+  };
+
+  const addNewWallet = async () => {
+    if (newWallet.trim() === '') {
+      return; // Prevent empty wallet names
+    }
+    await dispatch(addWallet(newWallet)); // Dispatch the action to add the wallet
+    setNewWallet(''); // Reset the new wallet input field
+    setIsAddingWallet(false); // Hide the input field
+    await dispatch(fetchWallets()); // Fetch updated wallets after adding
+    setWalletDropdownVisible(false); // Close dropdown
+  };
+
 
   const textColor = (selected: string) => (selected === 'Category' || selected === 'Wallet' ? '#91919F' : '#000');
 
@@ -925,13 +674,89 @@ const AddExpense = () => {
 
   const removeSelectedFile = () => setSelectedFile(null);
 
+  // const handleContinueClick = () => {
+  //   if (!userId) {
+  //     console.log('User ID is not available');
+  //     return;
+  //   }
+
+  //   const transaction = {
+  //     amount: parseFloat(amount),
+  //     description,
+  //     category: selectedOption === 'Add Category' ? customCategory : selectedOption,
+  //     createdAt: new Date(),
+  //     userId: userId,
+  //     walletId: selectedWalletId,
+  //     type: transactionType as 'expense' | 'income',
+  //     attachment: selectedFile ? selectedFile.uri : null,
+  //   };
+
+  //   dispatch(addTransaction(transaction))
+  //     .unwrap()
+  //     .then(() => {
+  //       setIsModalVisible(true);
+  //       setAmount('');
+  //       setDescription('');
+  //       setSelectedFile(null);
+  //       setCustomCategory('');
+  //     });
+  // };
+
+
+  // const handleContinueClick = () => {
+  //   if (!userId) {
+  //     console.log('User ID is not available');
+  //     return;
+  //   }
+
+  //   // Ensure selectedWalletId is defined
+  //   if (!selectedWalletId) {
+  //     console.error('Wallet ID is required');
+  //     return; // Or handle it as needed
+  //   }
+
+  //   const transaction = {
+  //     amount: parseFloat(amount),
+  //     description,
+  //     category: selectedOption === 'Add Category' ? customCategory : selectedOption,
+  //     createdAt: new Date(),
+  //     userId: userId,
+  //     walletId: selectedWalletId, // Use the wallet ID directly (must be a string)
+  //     type: transactionType as 'expense' | 'income',
+  //     attachment: selectedFile ? selectedFile.uri : null,
+  //   };
+
+  //   dispatch(addTransaction(transaction))
+  //     .unwrap()
+  //     .then(() => {
+  //       setIsModalVisible(true);
+  //       setAmount('');
+  //       setDescription('');
+  //       setSelectedFile(null);
+  //       setCustomCategory('');
+  //     });
+  // };
+
   const handleContinueClick = () => {
+    if (!userId) {
+      console.log('User ID is not available');
+      return;
+    }
+
+    if (!selectedWalletId) {
+      console.error('Wallet ID is required');
+      return;
+    }
+
     const transaction = {
       amount: parseFloat(amount),
       description,
-      category: selectedOption === 'Add New Category' ? customCategory : selectedOption,
+      category: selectedOption === 'Add Category' ? customCategory : selectedOption,
       createdAt: new Date(),
-      userId: 'User ID', // Replace with actual user ID
+      userId: userId, 
+      walletId: selectedWalletId, // Make sure to use the wallet ID correctly
+      type: transactionType as 'expense' | 'income',
+      attachment: selectedFile ? selectedFile.uri : null,
     };
 
     dispatch(addTransaction(transaction))
@@ -941,12 +766,10 @@ const AddExpense = () => {
         setAmount('');
         setDescription('');
         setSelectedFile(null);
-        setCustomCategory(''); // Clear custom category input
-      })
-      .catch(() => {
-        // Handle error (if needed)
+        setCustomCategory('');
       });
   };
+
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
@@ -958,10 +781,11 @@ const AddExpense = () => {
   const handleSelect = (option: string) => {
     if (option === 'Add New Category') {
       setSelectedOption(option);
-      setCustomCategory(''); // Clear the custom category input
+      setCustomCategory('');
+      setDropdownVisible(false);
     } else {
       setSelectedOption(option);
-      setCustomCategory(''); // Clear custom input when selecting existing category
+      setCustomCategory('');
     }
     setDropdownVisible(false);
   };
@@ -1016,7 +840,6 @@ const AddExpense = () => {
           />
         )}
 
-        {/* <TextInput style={styles.inputField} placeholder="Description" placeholderTextColor="#91919F" value={description} /> */}
         <TextInput
           style={styles.inputField}
           placeholder="Description"
@@ -1030,15 +853,135 @@ const AddExpense = () => {
           <Image source={require('../../../src/assets/icons/arrow-down2.png')} />
         </TouchableOpacity>
 
-        {walletDropdownVisible && (
+        {/* {walletDropdownVisible && (
           <View style={styles.dropdown2}>
-            {['PayPal', 'Credit Card', 'Bank Transfer'].map((option) => (
-              <TouchableOpacity key={option} style={styles.option} onPress={() => handleWalletSelect(option)}>
-                <Text style={styles.placeholderText}>{option}</Text>
+            {wallets.map((option) => (
+              <TouchableOpacity key={option.id} style={styles.option} onPress={() => handleWalletSelect(option.name)}>
+                <Text style={styles.placeholderText}>{option.name}</Text>
               </TouchableOpacity>
             ))}
+            <TouchableOpacity style={styles.option} onPress={() => handleWalletSelect('Add New Wallet')}>
+              <Text style={styles.placeholderText}>Add New Wallet</Text>
+            </TouchableOpacity>
+          </View>
+        )} */}
+
+        {/* {walletDropdownVisible && (
+          <View style={styles.dropdown2}>
+            {wallets.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={styles.option}
+                onPress={() => handleWalletSelect(option)} // Pass the whole object
+              >
+                <Text style={styles.placeholderText}>{option.name}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.option} onPress={() => handleWalletSelect({ id: 'new', name: 'Add New Wallet' })}>
+              <Text style={styles.placeholderText}>Add New Wallet</Text>
+            </TouchableOpacity>
+          </View>
+        )} */}
+
+        {walletDropdownVisible && (
+          <View style={styles.dropdown2}>
+            {wallets.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={styles.option}
+                onPress={() => {
+                  if (option.id) {
+                    handleWalletSelect(option); // Pass the whole object only if id is defined
+                  } else {
+                    console.error('Cannot select wallet with undefined ID');
+                  }
+                }}
+              >
+                <Text style={styles.placeholderText}>{option.name}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.option} onPress={() => handleWalletSelect({ id: 'new', name: 'Add New Wallet' })}>
+              <Text style={styles.placeholderText}>Add New Wallet</Text>
+            </TouchableOpacity>
           </View>
         )}
+
+
+
+        {isAddingWallet && (
+          <View>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Enter wallet name"
+              placeholderTextColor="#91919F"
+              value={newWallet}
+              onChangeText={(text) => setNewWallet(text)}
+            />
+            <TouchableOpacity onPress={addNewWallet}>
+              <Text>Add Wallet</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* <TouchableOpacity style={styles.inputField} onPress={toggleWalletDropdown}>
+          <Text style={[styles.placeholderText, { color: textColor(selectedWallet) }]}>{selectedWallet}</Text>
+          <Image source={require('../../../src/assets/icons/arrow-down2.png')} />
+        </TouchableOpacity>
+
+        {walletDropdownVisible && (
+          <View style={styles.dropdown2}>
+            {wallets.map((option) => (
+              <TouchableOpacity key={option.id} style={styles.option} onPress={() => handleWalletSelect(option.name)}>
+                <Text style={styles.placeholderText}>{option.name}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.option} onPress={() => setIsAddingWallet(true)}>
+              <Text style={styles.placeholderText}>Add New Wallet</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {isAddingWallet && (
+          <View>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Enter wallet name"
+              placeholderTextColor="#91919F"
+              value={newWallet}
+              onChangeText={(text) => setNewWallet(text)}
+            />
+            <TouchableOpacity onPress={addNewWallet}>
+              <Text>Add Wallet</Text>
+            </TouchableOpacity>
+          </View>
+        )} */}
+
+        {/* {walletDropdownVisible && (
+          <View style={styles.dropdown2}>
+            {wallets.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={styles.option}
+                onPress={() => {
+                  if (option.id) {
+                    handleWalletSelect(option); // Pass the whole object only if id is defined
+                  } else {
+                    console.error('Cannot select wallet with undefined ID');
+                  }
+                }}
+              >
+                <Text style={styles.placeholderText}>{option.name}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => handleWalletSelect({ id: 'new', name: 'Add New Wallet' })}
+            >
+              <Text style={styles.placeholderText}>Add New Wallet</Text>
+            </TouchableOpacity>
+          </View>
+        )} */}
+
 
         {selectedFile && (
           <View style={styles.selectedFileContainer}>
@@ -1062,18 +1005,28 @@ const AddExpense = () => {
           </TouchableOpacity>
         </View>
       )}
-
       <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={handleCamera}>
-            <Text>Camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleGallery}>
-            <Text>Gallery</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleDocument}>
-            <Text>Document</Text>
-          </TouchableOpacity>
+          <View style={styles.modalContent}>
+            <View style={styles.dragLineContainer}>
+              <Image source={require('../../../src/assets/icons/Line-5.png')} style={styles.dragLine} />
+            </View>
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity style={styles.optionButton1} onPress={handleCamera}>
+                <Image source={require('../../../src/assets/icons/camera.png')} style={styles.optionIcon} />
+                <Text style={styles.optionText}>Camera</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.optionButton2} onPress={handleGallery}>
+                <Image source={require('../../../src/assets/icons/gallery.png')} style={styles.optionIcon} />
+                <Text style={styles.optionText}>Image</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.optionButton3} onPress={handleDocument}>
+                <Image source={require('../../../src/assets/icons/file.png')} style={styles.optionIcon} />
+                <Text style={styles.optionText}>Document</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </Modal>
       <Modal
@@ -1087,7 +1040,6 @@ const AddExpense = () => {
             <View>
               <Image source={require('../../assets/icons/success.png')} />
             </View>
-            {/* <Text style={styles.successMessage}>Transaction has been successfully added</Text> */}
             <Text style={styles.successMessage}>{message || 'Transaction has been successfully added'}</Text>
           </View>
         </View>
