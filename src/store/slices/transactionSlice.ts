@@ -155,15 +155,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
 
-// interface Transaction {
-//   id?: string;
-//   amount: number;
-//   description: string;
-//   category: string;
-//   createdAt: Date;
-//   type: 'expense' | 'income';
-//   attachments?: string[];
-// }
 interface Transaction {
   id?: string;
   amount: number;
@@ -172,7 +163,7 @@ interface Transaction {
   createdAt: Date;
   type: 'expense' | 'income';
   attachments?: string[];
-  walletId?: string;  // Add this line to associate a transaction with a wallet
+  walletId?: string;
 }
 
 
@@ -198,7 +189,7 @@ interface TransactionState {
 const initialState: TransactionState = {
   transactions: [],
   categories: [],
-  wallets:[],
+  wallets: [],
   loading: false,
   error: null,
   message: null,
@@ -249,21 +240,6 @@ export const addCategory = createAsyncThunk(
     }
   }
 );
-
-// export const addTransaction = createAsyncThunk(
-//   'transactions/addTransaction',
-//   async (transaction: Transaction & { userId: string }, { rejectWithValue }) => {
-//     try {
-//       const docRef = await firestore().collection('transactions').add({
-//         ...transaction,
-//         createdAt: new Date(),
-//       });
-//       return { id: docRef.id, ...transaction };
-//     } catch (error: any) {
-//       return rejectWithValue('Failed to add transaction.');
-//     }
-//   }
-// );
 
 export const addTransaction = createAsyncThunk(
   'transactions/addTransaction',
@@ -356,7 +332,6 @@ export const addWallet = createAsyncThunk(
     }
   }
 );
-
 
 const transactionSlice = createSlice({
   name: 'transactions',
