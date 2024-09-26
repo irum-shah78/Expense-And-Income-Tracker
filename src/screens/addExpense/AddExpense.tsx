@@ -1447,16 +1447,24 @@ const AddExpense = () => {
 
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.inputField} onPress={toggleDropdown}>
-          <Text style={[styles.placeholderText, { color: textColor(selectedOption) }]}>{selectedOption}</Text>
+          <Text style={[styles.placeholderText, { color: textColor(selectedOption) }]}>
+            {selectedOption}
+          </Text>
           <Image source={require('../../../src/assets/icons/arrow-down2.png')} />
         </TouchableOpacity>
         {dropdownVisible && (
           <View style={styles.dropdown}>
-            {['Shopping', 'Subscription', 'Food', 'Salary', 'Passive Income'].map((option) => (
-              <TouchableOpacity key={option} style={styles.option} onPress={() => handleSelect(option)}>
-                <Text style={styles.dropText}>{option}</Text>
-              </TouchableOpacity>
-            ))}
+            <ScrollView style={styles.dropdownScroll} nestedScrollEnabled>
+              {['Shopping', 'Subscription', 'Food', 'Salary', 'Passive Income'].map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={styles.option}
+                  onPress={() => handleSelect(option)}
+                >
+                  <Text style={styles.dropText}>{option}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -1469,18 +1477,24 @@ const AddExpense = () => {
         />
 
         <TouchableOpacity style={styles.inputField} onPress={toggleWalletDropdown}>
-          <Text style={[styles.placeholderText, { color: textColor(selectedWallet) }]}>{selectedWallet}</Text>
+          <Text style={[styles.placeholderText, { color: textColor(selectedWallet) }]}>
+            {selectedWallet}
+          </Text>
           <Image source={require('../../../src/assets/icons/arrow-down2.png')} />
         </TouchableOpacity>
         {walletDropdownVisible && (
           <View style={styles.dropdown2}>
-            {['PayPal', 'Credit Card', 'Bank Transfer'].map((option) => (
-              <ScrollView>
-                <TouchableOpacity key={option} style={styles.option} onPress={() => handleWalletSelect(option)}>
+            <ScrollView style={styles.dropdownScroll2} nestedScrollEnabled>
+              {['PayPal', 'Credit Card', 'Bank Transfer'].map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={styles.option2}
+                  onPress={() => handleWalletSelect(option)}
+                >
                   <Text style={styles.placeholderText}>{option}</Text>
                 </TouchableOpacity>
-              </ScrollView>
-            ))}
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -1544,7 +1558,10 @@ const AddExpense = () => {
             <Text style={styles.successMessage}>{message || 'Transaction has been successfully added'}</Text>
           </View>
         </View>
-        {error && <Text>{error}</Text>}
+        {/* {error && <Text>{error}</Text>} */}
+        {error && (
+          <Text>{error}</Text> // You may also want to style this
+        )}
       </Modal>
     </View>
   );
@@ -1668,6 +1685,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#C4C4C4',
     borderRadius: 2.5,
   },
+  dropdownScroll: {
+    maxHeight: 150,
+  },
+  dropdownScroll2: {
+    maxHeight: 80,
+  },
   optionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -1745,7 +1768,17 @@ const styles = StyleSheet.create({
     borderColor: '#F1F1FA',
     borderWidth: 1,
     borderRadius: 10,
-    padding: 15,
+    padding: 10,
+    fontSize: 16,
+    marginHorizontal: 20,
+  },
+  option2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#F1F1FA',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 20,
     fontSize: 16,
     marginHorizontal: 20,
   },

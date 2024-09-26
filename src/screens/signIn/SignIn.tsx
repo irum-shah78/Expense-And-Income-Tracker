@@ -17,7 +17,7 @@ const SignInScreen = (props: any) => {
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: '153932310972-7o5t86d76tli42v6u13bdj1t7u1q5mh1.apps.googleusercontent.com',
-      offlineAccess: false,
+      offlineAccess: true,
     });
   }, []);
 

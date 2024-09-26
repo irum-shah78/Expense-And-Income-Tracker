@@ -40,32 +40,64 @@ export const userRegister = createAsyncThunk(
   }
 );
 
+// export const googleSignIn = createAsyncThunk(
+//   'auth/googleSignIn',
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       await GoogleSignin.hasPlayServices();
+//       const userInfo = await GoogleSignin.signIn();
+//       const idToken = userInfo.data?.idToken;
+//       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+//       const userCredential = await auth().signInWithCredential(googleCredential);
+//       const user = userCredential.user;
+//       const userDoc = await firestore().collection('users').doc(user.uid).get();
+
+//       if (!userDoc.exists) {
+//         await firestore().collection('users').doc(user.uid).set({
+//           email: user.email,
+//           displayName: user.displayName,
+//           photoURL: user.photoURL,
+//         });
+//       }
+
+//       return user;
+//     } catch (error: any) {
+//       return rejectWithValue(error.message || 'Google Sign-In failed');
+//     }
+//   }
+// );
 
 export const googleSignIn = createAsyncThunk(
   'auth/googleSignIn',
   async (_, { rejectWithValue }) => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      const userCredential = await auth().signInWithCredential(googleCredential);
-      const user = userCredential.user;
-      const userDoc = await firestore().collection('users').doc(user.uid).get();
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo?.data?.idToken;
 
-      if (!userDoc.exists) {
-        await firestore().collection('users').doc(user.uid).set({
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-        });
+      if (idToken) {
+        const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+        const userCredential = await auth().signInWithCredential(googleCredential);
+        const user = userCredential.user;
+        const userDoc = await firestore().collection('users').doc(user.uid).get();
+
+        if (!userDoc.exists) {
+          await firestore().collection('users').doc(user.uid).set({
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+          });
+        }
+
+        return user;
       }
-
-      return user;
     } catch (error: any) {
+      console.log('Error from Google sign-in:', error);
       return rejectWithValue(error.message || 'Google Sign-In failed');
     }
   }
 );
+
 
 export const storeUserProfile = createAsyncThunk(
   'auth/storeUserProfile',
@@ -232,9 +264,18 @@ const authSlice = createSlice({
       .addCase(fetchUserProfile.pending, (state) => {
         state.loading = true;
       })
+      // .addCase(fetchUserProfile.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.user = { ...state.user, ...action.payload };
+      // })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = { ...state.user, ...action.payload };
+        if (state.user) {
+          // Ensure action.payload is defined and merges correctly
+          const { displayName, imageUrl } = action.payload || {};
+          state.user.displayName = displayName || state.user.displayName; // Keep existing value if undefined
+          state.user.photoURL = imageUrl || state.user.photoURL; // Keep existing value if undefined
+        }
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.loading = false;
@@ -253,6 +294,15 @@ const authSlice = createSlice({
         }
         state.message = 'Profile updated successfully';
       })
+      // .addCase(updateUserProfile.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   if (state.user) {
+      //     const { displayName, imageUrl } = action.payload || {};
+      //     state.user.displayName = displayName !== undefined ? displayName : state.user.displayName;
+      //     state.user.photoURL = imageUrl !== undefined ? imageUrl : state.user.photoURL;
+      //   }
+      //   state.message = 'Profile updated successfully';
+      // })
       .addCase(updateUserProfile.rejected, (state, action) => {
         console.error(action.payload);
       })
