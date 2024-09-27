@@ -101,27 +101,27 @@
 //       </View>
 
 //       {/* Tabs */}
-// <View style={styles.tabsSection}>
-//   {tabs.map((tab) => (
-//     <TouchableOpacity
-//       key={tab}
-//       style={[
-//         styles.tab,
-//         selectedTab === tab ? styles.activeTab : styles.inactiveTab,
-//       ]}
-//       onPress={() => setSelectedTab(tab)}
-//     >
-//       <Text
-//         style={[
-//           styles.tabText,
-//           selectedTab === tab ? styles.activeTabText : styles.inactiveTabText,
-//         ]}
-//       >
-//         {tab}
-//       </Text>
-//     </TouchableOpacity>
-//   ))}
-// </View>
+//       <View style={styles.tabsSection}>
+//         {tabs.map((tab) => (
+//           <TouchableOpacity
+//             key={tab}
+//             style={[
+//               styles.tab,
+//               selectedTab === tab ? styles.activeTab : styles.inactiveTab,
+//             ]}
+//             onPress={() => setSelectedTab(tab)}
+//           >
+//             <Text
+//               style={[
+//                 styles.tabText,
+//                 selectedTab === tab ? styles.activeTabText : styles.inactiveTabText,
+//               ]}
+//             >
+//               {tab}
+//             </Text>
+//           </TouchableOpacity>
+//         ))}
+//       </View>
 
 //       {/* Recent Transactions */}
 //       <View style={styles.transactionContainer}>
@@ -702,8 +702,9 @@
 //   );
 // };
 
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchTransactions } from '../../store/slices/transactionSlice'; // Adjust the import according to your file structure
@@ -712,12 +713,11 @@ const HomePage = () => {
   const [selectedTab, setSelectedTab] = useState('Today');
   const tabs = ['Today', 'Week', 'Month', 'Year'];
 
-  // const dispatch = useDispatch();
   const dispatch: AppDispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
 
   // Access transactions from Redux state
-  const { transactions, loading, error } = useSelector(state => state.transaction);
+  const { transactions, loading, error } = useSelector((state: RootState) => state.transaction);
 
   useEffect(() => {
     if (user?.uid) {
@@ -725,19 +725,35 @@ const HomePage = () => {
     }
   }, [user, dispatch]);
 
-  const data = transactions.map(transaction => ({
+  // const data = transactions.map((transaction) => ({
+  //   id: transaction.id,
+  //   name: transaction.category, // Assuming you have a category field
+  //   description: transaction.description,
+  //   price: `$${transaction.amount}`,
+  //   time: new Date(transaction.createdAt).toLocaleTimeString(), // Adjust format as needed
+  //   backgroundColor: '#FCEED4', // Set a default or based on category
+  //   paddingTop: 10,
+  //   paddingBottom: 10,
+  //   paddingRight: 10,
+  //   paddingLeft: 10,
+  //   borderRadius: 16,
+  //   attachments: transaction.attachments || [], // Include attachments
+  // }));
+
+  const data = transactions.map((transaction) => ({
     id: transaction.id,
-    icon: require('../../assets/icons/placeholder-icon.png'), // Replace with actual logic to get category icons
-    name: transaction.category, // Assuming you have a category field
+    name: transaction.category,
     description: transaction.description,
     price: `$${transaction.amount}`,
-    time: new Date(transaction.createdAt).toLocaleTimeString(), // Adjust format as needed
-    backgroundColor: '#FCEED4', // Set a default or based on category
+    // time: new Date(transaction.createdAt).toLocaleTimeString(),
+    time: new Date(transaction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), // Adjust format as needed
+    // backgroundColor: '#FCEED4',
     paddingTop: 10,
     paddingBottom: 10,
     paddingRight: 10,
     paddingLeft: 10,
     borderRadius: 16,
+    attachments: Array.isArray(transaction.attachments) ? transaction.attachments : [transaction.attachments], // Ensure it's always an array
   }));
 
   return (
@@ -760,11 +776,9 @@ const HomePage = () => {
             <Image source={require('../../assets/icons/notifiaction.png')} />
           </TouchableOpacity>
         </View>
-        {/* Rest of your header code... */}
       </View>
 
-      {/* Graph Section, Tabs, and Recent Transactions */}
-      {/* ... Your existing code for graphs and tabs ... */}
+      {/* Tabs */}
       <View style={styles.tabsSection}>
         {tabs.map((tab) => (
           <TouchableOpacity
@@ -787,8 +801,8 @@ const HomePage = () => {
         ))}
       </View>
 
-      {/* Recent Transactions */}
-      <View style={styles.transactionContainer}>
+      {/* Scrollable Transaction List */}
+      <ScrollView style={styles.transactionContainer}>
         <View style={styles.recentHeader}>
           <Text style={styles.headerTitle}>Recent Transaction</Text>
           <TouchableOpacity style={styles.seeAllButton}>
@@ -800,13 +814,13 @@ const HomePage = () => {
         ) : error ? (
           <Text>{error}</Text>
         ) : (
-          data.map((item:any) => (
+          data.map((item) => (
             <View key={item.id} style={styles.rowContainer}>
               <View style={styles.row}>
                 <View style={styles.leftSection}>
                   <View
                     style={[styles.iconWrapper, {
-                      backgroundColor: item.backgroundColor,
+                      // backgroundColor: item.backgroundColor,
                       paddingTop: item.paddingTop,
                       paddingBottom: item.paddingBottom,
                       paddingLeft: item.paddingLeft,
@@ -814,7 +828,16 @@ const HomePage = () => {
                       borderRadius: item.borderRadius,
                     }]}
                   >
-                    <Image source={item.icon} />
+                    {item.attachments.length > 0 ? (
+                      // <Image source={{ uri: item.attachments[0] }} style={styles.attachmentImage} />
+                      <Image
+                        source={{ uri: item.attachments[0] || 'https://via.placeholder.com/50' }}
+                        style={styles.attachmentImage}
+                      />
+
+                    ) : (
+                      <Text>No Image</Text>
+                    )}
                   </View>
                   <View>
                     <Text style={styles.name}>{item.name}</Text>
@@ -829,12 +852,18 @@ const HomePage = () => {
             </View>
           ))
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
+
 const styles = StyleSheet.create({
+  attachmentImage: {
+    width: 50, // Adjust size according to your design
+    height: 50,
+    borderRadius: 8, // Optional: for rounded images
+  },
   container: {
     flex: 1,
     paddingHorizontal: 1,
