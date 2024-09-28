@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
 interface Transaction {
   id?: string;
@@ -40,15 +41,50 @@ const initialState: TransactionState = {
   message: null,
 };
 
+// export const fetchTransactions = createAsyncThunk(
+//   'transactions/fetchTransactions',
+//   async (userId: string, { rejectWithValue }) => {
+//     try {
+//       const querySnapshot = await firestore().collection('transactions').where('userId', '==', userId).get();
+//       const transactions: Transaction[] = [];
+//       querySnapshot.forEach(doc => {
+//         transactions.push({ id: doc.id, ...doc.data() } as Transaction);
+//       });
+//       return transactions;
+//     } catch (error: any) {
+//       return rejectWithValue('Failed to fetch transactions.');
+//     }
+//   }
+// );
+
+// Action to fetch transactions
 export const fetchTransactions = createAsyncThunk(
   'transactions/fetchTransactions',
   async (userId: string, { rejectWithValue }) => {
     try {
-      const querySnapshot = await firestore().collection('transactions').where('userId', '==', userId).get();
+      const querySnapshot = await firestore()
+        .collection('transactions')
+        .where('userId', '==', userId)
+        .get();
+
       const transactions: Transaction[] = [];
       querySnapshot.forEach(doc => {
-        transactions.push({ id: doc.id, ...doc.data() } as Transaction);
+        const data = doc.data();
+
+        // Convert Firestore Timestamp to JS Date object
+        const createdAt = (data.createdAt as any)?.toDate(); // Converts Firestore Timestamp to Date
+
+        transactions.push({
+          id: doc.id,
+          amount: data.amount,
+          description: data.description,
+          category: data.category,
+          createdAt: createdAt || new Date(),
+          type: data.type,
+          attachments: data.attachments || [],
+        });
       });
+
       return transactions;
     } catch (error: any) {
       return rejectWithValue('Failed to fetch transactions.');
@@ -86,20 +122,58 @@ export const addCategory = createAsyncThunk(
   }
 );
 
+// export const addTransaction = createAsyncThunk(
+//   'transactions/addTransaction',
+//   async (transaction: Transaction & { userId: string; walletId: string }, { rejectWithValue }) => {
+//     try {
+//       const docRef = await firestore().collection('transactions').add({
+//         ...transaction,
+//         createdAt: new Date(),
+//       });
+//       return { id: docRef.id, ...transaction };
+//     } catch (error: any) {
+//       return rejectWithValue('Failed to add transaction.');
+//     }
+//   }
+// );
+
+// Helper function to upload files to Firebase Storage and get the download URL
+const uploadFile = async (fileUri: string, userId: string): Promise<string> => {
+  try {
+    const fileName = `${Date.now()}_${fileUri.substring(fileUri.lastIndexOf('/') + 1)}`;
+    const reference = storage().ref(`attachments/${userId}/${fileName}`);
+    await reference.putFile(fileUri);
+    const downloadUrl = await reference.getDownloadURL();
+    return downloadUrl;
+  } catch (error) {
+    throw new Error('Failed to upload file');
+  }
+};
+
+// Updated action to add a transaction with attachments
 export const addTransaction = createAsyncThunk(
   'transactions/addTransaction',
-  async (transaction: Transaction & { userId: string; walletId: string }, { rejectWithValue }) => {
+  async (transaction: Transaction & { userId: string; walletId: string; files?: string[] }, { rejectWithValue }) => {
     try {
-      const docRef = await firestore().collection('transactions').add({
+      const uploadedFiles = transaction.files ? await Promise.all(
+        transaction.files.map(fileUri => uploadFile(fileUri, transaction.userId))
+      ) : [];
+
+      const transactionData = {
         ...transaction,
+        attachments: uploadedFiles,  // Store URLs of uploaded files
         createdAt: new Date(),
-      });
-      return { id: docRef.id, ...transaction };
+      };
+
+      // Save to Firestore
+      const docRef = await firestore().collection('transactions').add(transactionData);
+      return { id: docRef.id, ...transactionData };
     } catch (error: any) {
-      return rejectWithValue('Failed to add transaction.');
+      return rejectWithValue('Failed to add transaction with attachments.');
     }
   }
 );
+
 
 
 export const updateTransaction = createAsyncThunk(

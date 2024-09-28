@@ -69,31 +69,31 @@
 //             <Image source={require('../../assets/icons/notifiaction.png')} />
 //           </TouchableOpacity>
 //         </View>
-//         <View style={styles.accountBalanceSection}>
-//           <Text style={styles.accountBalanceText}>Account Balance</Text>
-//           <Text style={styles.balanceAmount}>$9400</Text>
-//           <View style={styles.overviewSection}>
-//             <View style={styles.overviewBox1}>
-//               <View style={styles.incomeImage}>
-//                 <Image source={require('../../assets/icons/Income.png')} />
-//               </View>
-//               <View>
-//                 <Text style={styles.incomeText}>Income</Text>
-//                 <Text style={styles.amountText}>$5000</Text>
-//               </View>
-//             </View>
-//             <View style={styles.overviewBox2}>
-//               <View style={styles.incomeImage}>
-//                 <Image source={require('../../assets/icons/Expense.png')} />
-//               </View>
-//               <View>
-//                 <Text style={styles.expenseText}>Expenses</Text>
-//                 <Text style={styles.amountText}>$1200</Text>
-//               </View>
-//             </View>
-//           </View>
+//   <View style={styles.accountBalanceSection}>
+//     <Text style={styles.accountBalanceText}>Account Balance</Text>
+//     <Text style={styles.balanceAmount}>$9400</Text>
+//     <View style={styles.overviewSection}>
+//       <View style={styles.overviewBox1}>
+//         <View style={styles.incomeImage}>
+//           <Image source={require('../../assets/icons/Income.png')} />
+//         </View>
+//         <View>
+//           <Text style={styles.incomeText}>Income</Text>
+//           <Text style={styles.amountText}>$5000</Text>
 //         </View>
 //       </View>
+//       <View style={styles.overviewBox2}>
+//         <View style={styles.incomeImage}>
+//           <Image source={require('../../assets/icons/Expense.png')} />
+//         </View>
+//         <View>
+//           <Text style={styles.expenseText}>Expenses</Text>
+//           <Text style={styles.amountText}>$1200</Text>
+//         </View>
+//       </View>
+//     </View>
+//   </View>
+// </View>
 
 //       <View style={styles.graphSection}>
 //         <Text style={styles.spendFrequencyText}>Spend Frequency</Text>
@@ -707,7 +707,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
-import { fetchTransactions } from '../../store/slices/transactionSlice'; // Adjust the import according to your file structure
+import { fetchTransactions } from '../../store/slices/transactionSlice';
 
 const HomePage = () => {
   const [selectedTab, setSelectedTab] = useState('Today');
@@ -716,44 +716,51 @@ const HomePage = () => {
   const dispatch: AppDispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
 
-  // Access transactions from Redux state
   const { transactions, loading, error } = useSelector((state: RootState) => state.transaction);
 
-  useEffect(() => {
-    if (user?.uid) {
-      dispatch(fetchTransactions(user.uid)); // Fetch transactions using the logged-in user's ID
-    }
-  }, [user, dispatch]);
+  // useEffect(() => {
+  //   if (user?.uid) {
+  //     dispatch(fetchTransactions(user.uid));
+  //   }
+  // }, [user, dispatch]);
 
   // const data = transactions.map((transaction) => ({
   //   id: transaction.id,
-  //   name: transaction.category, // Assuming you have a category field
+  //   name: transaction.category,
   //   description: transaction.description,
   //   price: `$${transaction.amount}`,
-  //   time: new Date(transaction.createdAt).toLocaleTimeString(), // Adjust format as needed
-  //   backgroundColor: '#FCEED4', // Set a default or based on category
+  //   // time: new Date(transaction.createdAt).toLocaleTimeString(),
+  //   time: new Date(transaction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  //   // backgroundColor: '#FCEED4',
   //   paddingTop: 10,
   //   paddingBottom: 10,
   //   paddingRight: 10,
   //   paddingLeft: 10,
   //   borderRadius: 16,
-  //   attachments: transaction.attachments || [], // Include attachments
+  //   attachments: Array.isArray(transaction.attachments) ? transaction.attachments : [transaction.attachments],
   // }));
+
+  useEffect(() => {
+    if (user?.uid) {
+      dispatch(fetchTransactions(user.uid));
+    }
+  }, [user, dispatch]);
 
   const data = transactions.map((transaction) => ({
     id: transaction.id,
     name: transaction.category,
     description: transaction.description,
     price: `$${transaction.amount}`,
-    // time: new Date(transaction.createdAt).toLocaleTimeString(),
-    time: new Date(transaction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), // Adjust format as needed
-    // backgroundColor: '#FCEED4',
+
+    // Format the time part of createdAt
+    time: new Date(transaction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+
     paddingTop: 10,
     paddingBottom: 10,
     paddingRight: 10,
     paddingLeft: 10,
     borderRadius: 16,
-    attachments: Array.isArray(transaction.attachments) ? transaction.attachments : [transaction.attachments], // Ensure it's always an array
+    attachments: Array.isArray(transaction.attachments) ? transaction.attachments : [transaction.attachments],
   }));
 
   return (
@@ -764,7 +771,7 @@ const HomePage = () => {
         <View style={styles.overlayBottom} />
         <View style={styles.profileSection}>
           <View style={styles.border}>
-            <Image source={user?.photoURL ? { uri: user.photoURL } : require('../../assets/images/profile.png')} style={styles.profileImage} />
+            <Image source={require('../../assets/images/profile.png')} style={styles.profileImage} />
           </View>
           <View>
             <TouchableOpacity style={styles.droppDown}>
@@ -776,6 +783,36 @@ const HomePage = () => {
             <Image source={require('../../assets/icons/notifiaction.png')} />
           </TouchableOpacity>
         </View>
+        <View style={styles.accountBalanceSection}>
+          <Text style={styles.accountBalanceText}>Account Balance</Text>
+          <Text style={styles.balanceAmount}>$9400</Text>
+          <View style={styles.overviewSection}>
+            <View style={styles.overviewBox1}>
+              <View style={styles.incomeImage}>
+                <Image source={require('../../assets/icons/Income.png')} />
+              </View>
+              <View>
+                <Text style={styles.incomeText}>Income</Text>
+                <Text style={styles.amountText}>$5000</Text>
+              </View>
+            </View>
+            <View style={styles.overviewBox2}>
+              <View style={styles.incomeImage}>
+                <Image source={require('../../assets/icons/Expense.png')} />
+              </View>
+              <View>
+                <Text style={styles.expenseText}>Expenses</Text>
+                <Text style={styles.amountText}>$1200</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+
+
+      <View style={styles.graphSection}>
+        <Text style={styles.spendFrequencyText}>Spend Frequency</Text>
+        <Image source={require('../../assets/images/Group.png')} style={styles.graphImage} />
       </View>
 
       {/* Tabs */}
@@ -828,13 +865,21 @@ const HomePage = () => {
                       borderRadius: item.borderRadius,
                     }]}
                   >
-                    {item.attachments.length > 0 ? (
-                      // <Image source={{ uri: item.attachments[0] }} style={styles.attachmentImage} />
+                    {/* {item.attachments.length > 0 ? (
                       <Image
                         source={{ uri: item.attachments[0] || 'https://via.placeholder.com/50' }}
                         style={styles.attachmentImage}
-                      />
-
+                      /> */}
+                    {item.attachments.length > 0 ? (
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        {item.attachments.map((attachment, index) => (
+                          <Image
+                            key={index}
+                            source={{ uri: attachment || 'https://via.placeholder.com/50' }}
+                            style={styles.attachmentImage}
+                          />
+                        ))}
+                      </ScrollView>
                     ) : (
                       <Text>No Image</Text>
                     )}
@@ -860,9 +905,9 @@ const HomePage = () => {
 
 const styles = StyleSheet.create({
   attachmentImage: {
-    width: 50, // Adjust size according to your design
+    width: 50,
     height: 50,
-    borderRadius: 8, // Optional: for rounded images
+    borderRadius: 8,
   },
   container: {
     flex: 1,
