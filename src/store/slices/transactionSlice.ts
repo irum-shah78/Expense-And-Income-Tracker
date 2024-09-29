@@ -57,7 +57,6 @@ const initialState: TransactionState = {
 //   }
 // );
 
-// Action to fetch transactions
 export const fetchTransactions = createAsyncThunk(
   'transactions/fetchTransactions',
   async (userId: string, { rejectWithValue }) => {
@@ -70,10 +69,7 @@ export const fetchTransactions = createAsyncThunk(
       const transactions: Transaction[] = [];
       querySnapshot.forEach(doc => {
         const data = doc.data();
-
-        // Convert Firestore Timestamp to JS Date object
-        const createdAt = (data.createdAt as any)?.toDate(); // Converts Firestore Timestamp to Date
-
+        const createdAt = (data.createdAt as any)?.toDate();
         transactions.push({
           id: doc.id,
           amount: data.amount,
@@ -137,7 +133,6 @@ export const addCategory = createAsyncThunk(
 //   }
 // );
 
-// Helper function to upload files to Firebase Storage and get the download URL
 const uploadFile = async (fileUri: string, userId: string): Promise<string> => {
   try {
     const fileName = `${Date.now()}_${fileUri.substring(fileUri.lastIndexOf('/') + 1)}`;
@@ -150,7 +145,6 @@ const uploadFile = async (fileUri: string, userId: string): Promise<string> => {
   }
 };
 
-// Updated action to add a transaction with attachments
 export const addTransaction = createAsyncThunk(
   'transactions/addTransaction',
   async (transaction: Transaction & { userId: string; walletId: string; files?: string[] }, { rejectWithValue }) => {
@@ -161,11 +155,10 @@ export const addTransaction = createAsyncThunk(
 
       const transactionData = {
         ...transaction,
-        attachments: uploadedFiles,  // Store URLs of uploaded files
+        attachments: uploadedFiles,
         createdAt: new Date(),
       };
 
-      // Save to Firestore
       const docRef = await firestore().collection('transactions').add(transactionData);
       return { id: docRef.id, ...transactionData };
     } catch (error: any) {
@@ -173,8 +166,6 @@ export const addTransaction = createAsyncThunk(
     }
   }
 );
-
-
 
 export const updateTransaction = createAsyncThunk(
   'transactions/updateTransaction',
