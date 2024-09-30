@@ -765,7 +765,6 @@ const HomePage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.overlayTop} />
         <View style={styles.overlayBottom} />
@@ -815,7 +814,6 @@ const HomePage = () => {
         <Image source={require('../../assets/images/Group.png')} style={styles.graphImage} />
       </View>
 
-      {/* Tabs */}
       <View style={styles.tabsSection}>
         {tabs.map((tab) => (
           <TouchableOpacity
@@ -838,7 +836,6 @@ const HomePage = () => {
         ))}
       </View>
 
-      {/* Scrollable Transaction List */}
       <ScrollView style={styles.transactionContainer}>
         <View style={styles.recentHeader}>
           <Text style={styles.headerTitle}>Recent Transaction</Text>
