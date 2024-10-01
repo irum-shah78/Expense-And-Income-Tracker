@@ -718,28 +718,6 @@ const HomePage = () => {
 
   const { transactions, loading, error } = useSelector((state: RootState) => state.transaction);
 
-  // useEffect(() => {
-  //   if (user?.uid) {
-  //     dispatch(fetchTransactions(user.uid));
-  //   }
-  // }, [user, dispatch]);
-
-  // const data = transactions.map((transaction) => ({
-  //   id: transaction.id,
-  //   name: transaction.category,
-  //   description: transaction.description,
-  //   price: `$${transaction.amount}`,
-  //   // time: new Date(transaction.createdAt).toLocaleTimeString(),
-  //   time: new Date(transaction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  //   // backgroundColor: '#FCEED4',
-  //   paddingTop: 10,
-  //   paddingBottom: 10,
-  //   paddingRight: 10,
-  //   paddingLeft: 10,
-  //   borderRadius: 16,
-  //   attachments: Array.isArray(transaction.attachments) ? transaction.attachments : [transaction.attachments],
-  // }));
-
   useEffect(() => {
     if (user?.uid) {
       dispatch(fetchTransactions(user.uid));
@@ -752,7 +730,6 @@ const HomePage = () => {
     description: transaction.description,
     price: `$${transaction.amount}`,
 
-    // Format the time part of createdAt
     time: new Date(transaction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
 
     paddingTop: 10,
